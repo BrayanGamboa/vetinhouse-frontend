@@ -28,5 +28,5 @@
       "@features/*" : ["./features/*"]
     }
   },
-  "include": ["src"]
+  "include": ["src", "src/types/google-maps.d.ts"]
 }

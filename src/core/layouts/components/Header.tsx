@@ -1,14 +1,12 @@
 export default function Header() {
   return (
-    <nav className="flex items-center justify-between p-3 shadow">
-      <div>
-        <p>
-          Develop by <b> Naser Rasouli</b>
-        </p>
+    <nav className="flex items-center justify-between p-4 bg-white shadow-sm border-b">
+      <div className="flex items-center">
+        <h1 className="text-xl font-bold text-blue-600">VetInHouse</h1>
       </div>
-      <ul>
-        <li>Show in Github</li>
-      </ul>
+      <div className="flex items-center space-x-4">
+        {/* Navegación se agregará aquí */}
+      </div>
     </nav>
   );
 }

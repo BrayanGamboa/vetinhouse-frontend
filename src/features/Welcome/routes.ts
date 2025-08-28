@@ -3,7 +3,7 @@ import FullLayout from "@/core/layouts/FullLayout";
 import WelcomeView from "./views/WelcomeView";
 export const WelcomeRoutes: RouteObject[] = [
   {
-    path: "/",
+    path: "/welcome",
     Component: FullLayout,
     children: [
       {
