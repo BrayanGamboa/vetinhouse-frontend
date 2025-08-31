@@ -12,7 +12,7 @@ export default function LoginForm() {
   const [message, setMessage] = useState('');
   const [messageType, setMessageType] = useState<'success' | 'error' | ''>('');
   
-  const { login, isLoading, showPassword, togglePasswordVisibility } = useLogin();
+  const { login, isLoading, showPassword, togglePasswordVisibility, loginWithGoogle, googleReady } = useLogin();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -132,6 +132,36 @@ export default function LoginForm() {
         </div>
       )}
       
+      <div className="mt-4">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="flex-1 h-px bg-white/20" />
+          <span className="text-white/80 text-sm">o</span>
+          <div className="flex-1 h-px bg-white/20" />
+        </div>
+        <div id="googleButton" className="flex justify-center">
+          {/* Google renderizará aquí el botón oficial */}
+        </div>
+        <button
+          type="button"
+          onClick={async () => {
+            const res = await loginWithGoogle();
+            if (res.success) {
+              showMessage('¡Inicio con Google exitoso!', 'success');
+              setTimeout(() => setShowSuccess(true), 1000);
+            } else {
+              showMessage(res.message, 'error');
+            }
+          }}
+          disabled={isLoading || !googleReady}
+          className="w-full py-3 mt-3 bg-white text-[#1f2937] rounded-full font-semibold shadow hover:bg-gray-100 disabled:opacity-50 transition-colors"
+        >
+          <span className="inline-flex items-center justify-center gap-2">
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="w-5 h-5" />
+            Continuar con Google
+          </span>
+        </button>
+      </div>
+
       <div className="mt-6 text-center w-full animate-[fadeIn_1s_ease-in-out_2s_both]">
         <a href="#" className="inline-block text-white no-underline text-sm font-semibold py-3 px-5 rounded-[25px] bg-[#4CAF50]/25 border-2 border-[#4CAF50] transition-all duration-300 mb-5 backdrop-blur-[10px] text-shadow-[0_1px_3px_rgba(0,0,0,0.5)] shadow-[0_4px_15px_rgba(76,175,80,0.3)] hover:bg-[#4CAF50]/40 hover:transform hover:-translate-y-0.5 hover:shadow-[0_6px_20px_rgba(76,175,80,0.4)]">
           <i className="fas fa-key mr-2 text-xs"></i>

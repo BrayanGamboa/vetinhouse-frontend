@@ -118,3 +118,22 @@ This project is open source and available under the [MIT License](LICENSE).
 
 Made with ❤️ by [Naser Rasouli]  
 GitHub: [@naserrasoulii](https://github.com/naserrasoulii)
+
+---
+
+## 🔐 Autenticación con Google (Google Identity Services)
+
+Para habilitar el login con Google en esta plantilla:
+
+1. Crea un archivo `.env` en la raíz del proyecto con:
+
+```
+VITE_GOOGLE_CLIENT_ID=TU_CLIENT_ID_DE_GOOGLE
+```
+
+2. Ejecuta `yarn dev` y visita la ruta `/login`.
+3. Haz clic en "Continuar con Google". El botón oficial se renderiza automáticamente.
+
+Notas:
+- La validación del token (JWT) debe realizarse en el backend en producción.
+- En este proyecto solo se decodifica el JWT para obtener nombre, email y foto de perfil.
