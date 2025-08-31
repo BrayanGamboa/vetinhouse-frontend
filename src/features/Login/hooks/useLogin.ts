@@ -76,108 +76,67 @@ export const useLogin = () => {
     };
   }, []);
 
-  const ensureGoogleInitialized = useCallback(() => {
-    if (!googleReady || googleInitRef.current) return;
-    const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID as string | undefined;
-    if (!clientId) return;
-    if (!window.google?.accounts?.id) return;
-    window.google.accounts.id.initialize({
-      client_id: clientId,
-      callback: () => {
-        // El callback real lo manejamos con prompt + credential callback abajo
-      }
-    });
-    googleInitRef.current = true;
-  }, [googleReady]);
-
-  useEffect(() => {
-    ensureGoogleInitialized();
-  }, [ensureGoogleInitialized]);
+  // Evitamos inicializar aquí para no duplicar init; lo haremos en setupGoogleButton
 
   const loginWithGoogle = useCallback(async (): Promise<LoginResponse> => {
-    setIsLoading(true);
-    try {
-      const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID as string | undefined;
-      if (!clientId) {
-        return { success: false, message: 'Falta configurar VITE_GOOGLE_CLIENT_ID' };
-      }
-      if (!window.google?.accounts?.id) {
-        return { success: false, message: 'Google Identity no está disponible' };
-      }
+  // Mantenemos por compatibilidad; ahora el flujo recomendado es el botón oficial (setupGoogleButton)
+  return { success: false, message: 'Usa el botón de Google para iniciar sesión' };
+  }, [googleReady]);
 
-      // Inicialización por seguridad si aún no
+  // Renderizar botón oficial de Google con callback de resultado
+  const setupGoogleButton = useCallback(
+    (
+      container: HTMLElement,
+      onResult: (res: LoginResponse) => void
+    ) => {
+      const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID as string | undefined;
+      if (!clientId || !window.google?.accounts?.id) {
+        // Aún no está listo; evita mostrar error en UI inicial
+        return false;
+      }
+      // Inicializar con callback directo, solo una vez
       if (!googleInitRef.current) {
         window.google.accounts.id.initialize({
           client_id: clientId,
-          callback: () => {}
+          callback: (response: any) => {
+            const credential = response?.credential as string | undefined;
+            if (!credential) {
+              onResult({ success: false, message: 'No se recibió credencial de Google' });
+              return;
+            }
+            const payload = decodeJwt<GoogleJwtPayload>(credential);
+            if (!payload || payload.aud !== clientId) {
+              onResult({ success: false, message: 'Token inválido' });
+              return;
+            }
+            localStorage.setItem('auth_provider', 'google');
+            localStorage.setItem('userEmail', payload.email ?? '');
+            localStorage.setItem('userId', payload.sub);
+            localStorage.setItem('userName', payload.name ?? '');
+            localStorage.setItem('userPicture', payload.picture ?? '');
+            localStorage.setItem('google_credential', credential);
+            onResult({
+              success: true,
+              message: 'Inicio con Google exitoso',
+              user: { id: payload.sub, email: payload.email ?? '', name: payload.name ?? 'Usuario Google' }
+            });
+          }
         });
         googleInitRef.current = true;
       }
-
-      // Promesa que resuelve cuando Google devuelve el credential
-    const credential: string = await new Promise((resolve, reject) => {
-        try {
-          // Usamos el flujo One Tap / Prompt, pero forzamos a mostrar el diálogo en popup si aplica
-      const handler = (response: any) => {
-            const cred = (response && response.credential) as string | undefined;
-            if (cred) resolve(cred);
-          };
-          // Renderizamos un botón invisible y lo clickeamos sería hacky; en su lugar usamos prompt que invoca UX elegible
-      window.google!.accounts.id.prompt();
-      // Re-initialize with our callback para capturar esta sesión
-          window.google!.accounts.id.initialize({ client_id: clientId, callback: handler });
-          // Render opcion: si hay un contenedor con id 'googleButton', Google insertará un botón
-          const btn = document.getElementById('googleButton');
-          if (btn) {
-            window.google!.accounts.id.renderButton(btn, {
-              type: 'standard',
-              theme: 'filled_blue',
-              size: 'large',
-              text: 'continue_with',
-              shape: 'pill',
-            });
-          } else {
-            // si no hay botón, igual el callback funcionará para One Tap
-          }
-          // además intentamos prompt para forzar UX
-          window.google!.accounts.id.prompt();
-          // timeout por si el usuario cierra o falla
-          setTimeout(() => reject(new Error('Tiempo de espera agotado')), 60000);
-        } catch (e) {
-          reject(e);
-        }
+      // Render oficial full-width
+      window.google.accounts.id.renderButton(container, {
+        type: 'standard',
+        theme: 'filled_blue',
+        size: 'large',
+        text: 'continue_with',
+        shape: 'pill',
+        width: '100%'
       });
-
-      const payload = decodeJwt<GoogleJwtPayload>(credential);
-      if (!payload) {
-        return { success: false, message: 'No se pudo leer el token de Google' };
-      }
-      if (payload.aud !== clientId) {
-        return { success: false, message: 'Token no corresponde a este cliente' };
-      }
-      // Guardamos información básica en localStorage (validación real debería ser en backend)
-      localStorage.setItem('auth_provider', 'google');
-      localStorage.setItem('userEmail', payload.email ?? '');
-      localStorage.setItem('userId', payload.sub);
-      localStorage.setItem('userName', payload.name ?? '');
-      localStorage.setItem('userPicture', payload.picture ?? '');
-      localStorage.setItem('google_credential', credential);
-
-      return {
-        success: true,
-        message: 'Inicio de sesión con Google exitoso',
-        user: {
-          id: payload.sub,
-          email: payload.email ?? '',
-          name: payload.name ?? 'Usuario Google',
-        }
-      };
-    } catch (e) {
-      return { success: false, message: 'Login con Google cancelado o fallido' };
-    } finally {
-      setIsLoading(false);
-    }
-  }, [googleReady]);
+      return true;
+    },
+    []
+  );
 
   return {
     login,
@@ -186,5 +145,6 @@ export const useLogin = () => {
     togglePasswordVisibility,
     loginWithGoogle,
     googleReady,
+    setupGoogleButton,
   };
 };

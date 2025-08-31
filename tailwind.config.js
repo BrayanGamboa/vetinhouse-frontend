@@ -29,6 +29,40 @@ export default {
         'loadingProgress': 'loadingProgress 3s ease-in-out 1s both',
         'loadingTextPulse': 'loadingTextPulse 1.5s ease-in-out infinite',
         'confettiFall': 'confettiFall 3s linear infinite',
+        'fadeInCenter': 'fadeInCenter 0.4s ease-out',
+        'slideInFromLeft': 'slideInFromLeft 0.8s ease-out',
+        'slideInFromRight': 'slideInFromRight 0.6s ease-out',
+      },
+      keyframes: {
+        fadeInCenter: {
+          '0%': { transform: 'translate(-50%, -50%) scale(0.95)', opacity: '0' },
+          '100%': { transform: 'translate(-50%, -50%) scale(1)', opacity: '1' },
+        },
+        slideInFromLeft: {
+          '0%': { transform: 'translate(-150%, -50%)', opacity: '0' },
+          '100%': { transform: 'translate(-50%, -50%)', opacity: '1' },
+        },
+        slideInFromRight: {
+          '0%': { transform: 'translate(50%, -50%)', opacity: '0' },
+          '100%': { transform: 'translate(-50%, -50%)', opacity: '1' },
+        },
+        floating: {
+          '0%': { 
+            top: '-10%', 
+            transform: 'translateX(0) rotate(0deg)', 
+            opacity: '1' 
+          },
+          '100%': { 
+            top: '110%', 
+            transform: 'translateX(100px) rotate(360deg)', 
+            opacity: '0' 
+          },
+        },
+        rise: {
+          '0%': { bottom: '-100px', transform: 'translateX(0)' },
+          '50%': { transform: 'translate(100px)' },
+          '100%': { bottom: '1080px', transform: 'translateX(-200px)' },
+        },
       },
       backdropBlur: {
         '20': '20px',
