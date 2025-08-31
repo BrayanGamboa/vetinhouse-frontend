@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
-import type { RegisterCredentials, RegisterResponse, PasswordStrength, PasswordRequirements } from '../types/register.types';
+import type { RegisterCredentials, RegisterResponse, PasswordStrength, PasswordRequirements, DocumentType, Role } from '../types/register.types';
 
 export const useRegister = () => {
   const [loading, setLoading] = useState(false);
@@ -20,6 +20,21 @@ export const useRegister = () => {
   });
 
   const navigate = useNavigate();
+
+  // Datos simulados de tipos de documento y roles
+  const documentTypes: DocumentType[] = [
+    { id: 1, name: 'Cédula de Ciudadanía', description: 'Documento de identidad colombiano' },
+    { id: 2, name: 'Cédula de Extranjería', description: 'Documento para extranjeros residentes' },
+    { id: 3, name: 'Pasaporte', description: 'Documento de viaje internacional' },
+    { id: 4, name: 'Tarjeta de Identidad', description: 'Documento de identidad menor de edad' },
+  ];
+
+  const roles: Role[] = [
+    { id: 1, name: 'Cliente', description: 'Usuario dueño de mascotas' },
+    { id: 2, name: 'Veterinario', description: 'Profesional veterinario' },
+    { id: 3, name: 'Paseador', description: 'Paseador de mascotas' },
+    { id: 4, name: 'Administrador', description: 'Administrador del sistema' },
+  ];
 
   const validatePassword = (password: string) => {
     const requirements: PasswordRequirements = {
@@ -62,6 +77,27 @@ export const useRegister = () => {
     return Object.values(requirements).every(req => req);
   };
 
+  const validateDocument = (document: string, typeId: number): boolean => {
+    if (!document || !typeId) return false;
+    
+    const type = documentTypes.find(t => t.id === typeId);
+    if (!type) return false;
+
+    // Validaciones específicas por tipo de documento
+    switch (typeId) {
+      case 1: // Cédula de Ciudadanía
+        return /^\d{7,10}$/.test(document);
+      case 2: // Cédula de Extranjería
+        return /^\d{6,12}$/.test(document);
+      case 3: // Pasaporte
+        return /^[A-Z0-9]{6,12}$/.test(document.toUpperCase());
+      case 4: // Tarjeta de Identidad
+        return /^\d{10,11}$/.test(document);
+      default:
+        return document.length >= 6;
+    }
+  };
+
   const register = async (credentials: RegisterCredentials): Promise<RegisterResponse> => {
     setLoading(true);
     setMessage('');
@@ -72,12 +108,27 @@ export const useRegister = () => {
       await new Promise(resolve => setTimeout(resolve, 1500));
 
       // Validaciones básicas
-      if (!credentials.username || !credentials.email || !credentials.password) {
-        throw new Error('Por favor, llena todos los campos.');
+      if (!credentials.document || !credentials.name || !credentials.lastName || 
+          !credentials.email || !credentials.password || !credentials.role_id || 
+          !credentials.document_type_id) {
+        throw new Error('Por favor, llena todos los campos obligatorios.');
       }
 
+      // Validar documento
+      if (!validateDocument(credentials.document, credentials.document_type_id)) {
+        const docType = documentTypes.find(t => t.id === credentials.document_type_id);
+        throw new Error(`El número de documento no es válido para ${docType?.name || 'el tipo seleccionado'}.`);
+      }
+
+      // Validar email
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(credentials.email)) {
+        throw new Error('Por favor, ingresa un email válido.');
+      }
+
+      // Validar contraseña
       if (!validatePassword(credentials.password)) {
-        throw new Error('La contraseña no cumple con los requisitos.');
+        throw new Error('La contraseña no cumple con los requisitos de seguridad.');
       }
 
       // Simular registro exitoso
@@ -86,8 +137,12 @@ export const useRegister = () => {
         message: 'Registro exitoso. Redirigiendo...',
         user: {
           id: Date.now().toString(),
-          username: credentials.username,
-          email: credentials.email
+          document: credentials.document,
+          name: credentials.name,
+          lastName: credentials.lastName,
+          email: credentials.email,
+          role_id: credentials.role_id,
+          document_type_id: credentials.document_type_id
         }
       };
 
@@ -130,8 +185,11 @@ export const useRegister = () => {
     showPassword,
     passwordStrength,
     passwordRequirements,
+    documentTypes,
+    roles,
     register,
     validatePassword,
+    validateDocument,
     togglePasswordVisibility
   };
 };

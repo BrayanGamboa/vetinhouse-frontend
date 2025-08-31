@@ -1,7 +1,12 @@
 export interface RegisterCredentials {
-  username: string;
+  document: string;
+  name: string;
+  lastName: string;
   email: string;
   password: string;
+  role_id: number;
+  document_type_id: number;
+  info?: string;
 }
 
 export interface RegisterResponse {
@@ -9,8 +14,12 @@ export interface RegisterResponse {
   message: string;
   user?: {
     id: string;
-    username: string;
+    document: string;
+    name: string;
+    lastName: string;
     email: string;
+    role_id: number;
+    document_type_id: number;
   };
 }
 
@@ -25,4 +34,16 @@ export interface PasswordRequirements {
   hasUppercase: boolean;
   hasNumber: boolean;
   hasSpecialChar: boolean;
+}
+
+export interface DocumentType {
+  id: number;
+  name: string;
+  description: string;
+}
+
+export interface Role {
+  id: number;
+  name: string;
+  description: string;
 }
