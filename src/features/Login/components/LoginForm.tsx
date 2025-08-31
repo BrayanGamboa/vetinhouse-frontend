@@ -4,6 +4,7 @@ import type { LoginCredentials } from '../types/login.types';
 import SuccessAnimation from './SuccessAnimation';
 
 export default function LoginForm() {
+  const hasGoogleClientId = Boolean(import.meta.env.VITE_GOOGLE_CLIENT_ID);
   const [credentials, setCredentials] = useState<LoginCredentials>({
     email: '',
     password: ''
@@ -152,7 +153,7 @@ export default function LoginForm() {
               showMessage(res.message, 'error');
             }
           }}
-          disabled={isLoading || !googleReady}
+          disabled={isLoading || !googleReady || !hasGoogleClientId}
           className="w-full py-3 mt-3 bg-white text-[#1f2937] rounded-full font-semibold shadow hover:bg-gray-100 disabled:opacity-50 transition-colors"
         >
           <span className="inline-flex items-center justify-center gap-2">
@@ -160,6 +161,11 @@ export default function LoginForm() {
             Continuar con Google
           </span>
         </button>
+        {!hasGoogleClientId && (
+          <div className="mt-3 text-xs text-red-300 bg-red-500/20 border border-red-500/30 rounded-lg p-2">
+            Configura VITE_GOOGLE_CLIENT_ID en el archivo .env y reinicia el servidor.
+          </div>
+        )}
       </div>
 
       <div className="mt-6 text-center w-full animate-[fadeIn_1s_ease-in-out_2s_both]">
