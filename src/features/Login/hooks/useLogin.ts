@@ -94,36 +94,33 @@ export const useLogin = () => {
         // Aún no está listo; evita mostrar error en UI inicial
         return false;
       }
-      // Inicializar con callback directo, solo una vez
-      if (!googleInitRef.current) {
-        window.google.accounts.id.initialize({
-          client_id: clientId,
-          callback: (response: any) => {
-            const credential = response?.credential as string | undefined;
-            if (!credential) {
-              onResult({ success: false, message: 'No se recibió credencial de Google' });
-              return;
-            }
-            const payload = decodeJwt<GoogleJwtPayload>(credential);
-            if (!payload || payload.aud !== clientId) {
-              onResult({ success: false, message: 'Token inválido' });
-              return;
-            }
-            localStorage.setItem('auth_provider', 'google');
-            localStorage.setItem('userEmail', payload.email ?? '');
-            localStorage.setItem('userId', payload.sub);
-            localStorage.setItem('userName', payload.name ?? '');
-            localStorage.setItem('userPicture', payload.picture ?? '');
-            localStorage.setItem('google_credential', credential);
-            onResult({
-              success: true,
-              message: 'Inicio con Google exitoso',
-              user: { id: payload.sub, email: payload.email ?? '', name: payload.name ?? 'Usuario Google' }
-            });
+      // Reinicializar siempre para asegurar que funcione
+      window.google.accounts.id.initialize({
+        client_id: clientId,
+        callback: (response: any) => {
+          const credential = response?.credential as string | undefined;
+          if (!credential) {
+            onResult({ success: false, message: 'No se recibió credencial de Google' });
+            return;
           }
-        });
-        googleInitRef.current = true;
-      }
+          const payload = decodeJwt<GoogleJwtPayload>(credential);
+          if (!payload || payload.aud !== clientId) {
+            onResult({ success: false, message: 'Token inválido' });
+            return;
+          }
+          localStorage.setItem('auth_provider', 'google');
+          localStorage.setItem('userEmail', payload.email ?? '');
+          localStorage.setItem('userId', payload.sub);
+          localStorage.setItem('userName', payload.name ?? '');
+          localStorage.setItem('userPicture', payload.picture ?? '');
+          localStorage.setItem('google_credential', credential);
+          onResult({
+            success: true,
+            message: 'Inicio con Google exitoso',
+            user: { id: payload.sub, email: payload.email ?? '', name: payload.name ?? 'Usuario Google' }
+          });
+        }
+      });
       // Render oficial full-width
       window.google.accounts.id.renderButton(container, {
         type: 'standard',

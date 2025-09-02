@@ -66,7 +66,7 @@ export default function LoginForm({ onBack }: LoginFormProps) {
   return (
     <div 
       id="loginContainer"
-      className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white/15 backdrop-blur-[20px] border border-white/20 rounded-[20px] p-10 w-[400px] max-w-[90vw] shadow-[0_25px_45px_rgba(0,0,0,0.2)] text-center z-[1000] transition-all duration-300 hover:transform hover:-translate-x-1/2 hover:-translate-y-[52%] hover:shadow-[0_30px_50px_rgba(0,0,0,0.3)] animate-[slideInFromRight_0.6s_ease-out]"
+      className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white/15 backdrop-blur-[20px] border border-white/20 rounded-[20px] p-10 w-[400px] max-w-[90vw] shadow-[0_25px_45px_rgba(0,0,0,0.2)] text-center z-[1000] transition-all duration-300 hover:transform hover:-translate-x-1/2 hover:-translate-y-[52%] hover:shadow-[0_30px_50px_rgba(0,0,0,0.3)] animate-[fadeIn_0.5s_ease-out]"
     >
       {/* Botón de regresar */}
       <button

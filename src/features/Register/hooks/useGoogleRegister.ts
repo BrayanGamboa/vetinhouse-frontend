@@ -27,24 +27,22 @@ export const useGoogleRegister = () => {
         return false;
       }
 
-      if (!googleInitRef.current) {
-        window.google.accounts.id.initialize({
-          client_id: clientId,
-          callback: (response: any) => {
-            const credential = response?.credential as string | undefined;
-            if (!credential) return;
-            
-            const payload = decodeJwt<GoogleJwtPayload>(credential);
-            if (!payload || payload.aud !== clientId) return;
-            
-            onGoogleData({
-              name: payload.given_name || payload.name?.split(' ')[0] || '',
-              email: payload.email || ''
-            });
-          }
-        });
-        googleInitRef.current = true;
-      }
+      // Reinicializar siempre
+      window.google.accounts.id.initialize({
+        client_id: clientId,
+        callback: (response: any) => {
+          const credential = response?.credential as string | undefined;
+          if (!credential) return;
+          
+          const payload = decodeJwt<GoogleJwtPayload>(credential);
+          if (!payload || payload.aud !== clientId) return;
+          
+          onGoogleData({
+            name: payload.given_name || payload.name?.split(' ')[0] || '',
+            email: payload.email || ''
+          });
+        }
+      });
 
       window.google.accounts.id.renderButton(container, {
         type: 'standard',

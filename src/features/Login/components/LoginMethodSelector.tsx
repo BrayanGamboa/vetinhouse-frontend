@@ -14,16 +14,20 @@ export default function LoginMethodSelector({ onSelectEmail }: LoginMethodSelect
 
   useEffect(() => {
     if (!googleReady || !googleBtnRef.current) return;
-    if (googleBtnRef.current.childElementCount > 0) return;
     
-    setupGoogleButton(googleBtnRef.current, (res) => {
-      if (res.success) {
-        // Redirección directa a home sin animación intermedia
-        setTimeout(() => navigate('/home'), 300);
+    const timer = setTimeout(() => {
+      if (googleBtnRef.current) {
+        googleBtnRef.current.innerHTML = '';
+        setupGoogleButton(googleBtnRef.current, (res) => {
+          if (res.success) {
+            setTimeout(() => navigate('/home'), 300);
+          }
+        });
       }
-    });
+    }, 100);
 
     return () => {
+      clearTimeout(timer);
       try { window.google?.accounts.id.cancel(); } catch {}
       if (googleBtnRef.current) googleBtnRef.current.innerHTML = '';
     };

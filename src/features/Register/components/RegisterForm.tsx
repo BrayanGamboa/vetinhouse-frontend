@@ -68,7 +68,9 @@ export default function RegisterForm() {
 
   useEffect(() => {
     if (!googleReady || !googleBtnRef.current || isGoogleMode) return;
-    if (googleBtnRef.current.childElementCount > 0) return;
+    
+    // Limpiar contenido previo
+    googleBtnRef.current.innerHTML = '';
     
     setupGoogleButton(googleBtnRef.current, handleGoogleData);
 
