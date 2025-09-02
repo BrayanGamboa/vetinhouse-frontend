@@ -1,3 +1,16 @@
+# Dependencias y artefactos de build
+node_modules/
+dist/
+
+# Entornos locales
+.env
+.env.*.local
+
+# Sistemas/editores
+.DS_Store
+Thumbs.db
+.vscode/
+*.log
 # Logs
 logs
 *.log

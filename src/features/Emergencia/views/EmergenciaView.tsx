@@ -131,7 +131,7 @@ export default function EmergenciaView() {
 
           <EmergencyModal 
             isOpen={showEmergencyModal}
-            emergency={currentEmergency}
+            emergency={currentEmergency ?? null}
             emergencyTimer={emergencyTimer}
             onCancel={handleCancelEmergency}
             onEmergencyCall={handleEmergencyCall}

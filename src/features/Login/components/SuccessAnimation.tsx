@@ -1,11 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 
 export default function SuccessAnimation() {
-  const [showConfetti, setShowConfetti] = useState(false);
 
   useEffect(() => {
-    setShowConfetti(true);
-    
     // Crear confetti
     createConfetti();
     

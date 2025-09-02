@@ -165,3 +165,37 @@
     opacity: 0;
   }
 }
+
+/* Animaciones para las transiciones */
+@keyframes fadeInCenter {
+  0% {
+    transform: translate(-50%, -50%) scale(0.95);
+    opacity: 0;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes slideInFromLeft {
+  0% {
+    transform: translate(-150%, -50%);
+    opacity: 0;
+  }
+  100% {
+    transform: translate(-50%, -50%);
+    opacity: 1;
+  }
+}
+
+@keyframes slideInFromRight {
+  0% {
+    transform: translate(50%, -50%);
+    opacity: 0;
+  }
+  100% {
+    transform: translate(-50%, -50%);
+    opacity: 1;
+  }
+}

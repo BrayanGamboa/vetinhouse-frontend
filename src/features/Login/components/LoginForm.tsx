@@ -2,8 +2,14 @@ import { useState } from 'react';
 import { useLogin } from '../hooks/useLogin';
 import type { LoginCredentials } from '../types/login.types';
 import SuccessAnimation from './SuccessAnimation';
+import { useNavigate } from 'react-router';
 
-export default function LoginForm() {
+interface LoginFormProps {
+  onBack?: () => void;
+}
+
+export default function LoginForm({ onBack }: LoginFormProps) {
+  const navigate = useNavigate();
   const [credentials, setCredentials] = useState<LoginCredentials>({
     email: '',
     password: ''
@@ -28,7 +34,9 @@ export default function LoginForm() {
       showMessage('¡Inicio de sesión exitoso!', 'success');
       setTimeout(() => {
         setShowSuccess(true);
-      }, 1000);
+        // Redirigir tras animación
+        setTimeout(() => navigate('/home'), 1500);
+      }, 600);
     } else {
       showMessage(result.message, 'error');
       // Efecto shake
@@ -58,8 +66,16 @@ export default function LoginForm() {
   return (
     <div 
       id="loginContainer"
-      className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white/15 backdrop-blur-[20px] border border-white/20 rounded-[20px] p-10 w-[400px] max-w-[90vw] shadow-[0_25px_45px_rgba(0,0,0,0.2)] text-center z-[1000] transition-all duration-300 hover:transform hover:-translate-x-1/2 hover:-translate-y-[52%] hover:shadow-[0_30px_50px_rgba(0,0,0,0.3)] animate-[fadeIn_1s_ease-in-out]"
+      className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white/15 backdrop-blur-[20px] border border-white/20 rounded-[20px] p-10 w-[400px] max-w-[90vw] shadow-[0_25px_45px_rgba(0,0,0,0.2)] text-center z-[1000] transition-all duration-300 hover:transform hover:-translate-x-1/2 hover:-translate-y-[52%] hover:shadow-[0_30px_50px_rgba(0,0,0,0.3)] animate-[slideInFromRight_0.6s_ease-out]"
     >
+      {/* Botón de regresar */}
+      <button
+        onClick={onBack}
+        className="absolute top-4 left-4 text-white/70 hover:text-[#4CAF50] transition-colors duration-300"
+      >
+        <i className="fas fa-arrow-left text-xl"></i>
+      </button>
+
       <div className="mb-8">
         <i className="fas fa-clinic-medical text-5xl text-[#4CAF50] mb-2 text-shadow-[0_0_20px_rgba(76,175,80,0.5)] animate-[pulse_2s_infinite]"></i>
         <h1 className="text-white text-3xl font-bold text-shadow-[0_2px_4px_rgba(0,0,0,0.3)]">VetInHouse</h1>
@@ -131,7 +147,7 @@ export default function LoginForm() {
           {message}
         </div>
       )}
-      
+
       <div className="mt-6 text-center w-full animate-[fadeIn_1s_ease-in-out_2s_both]">
         <a href="#" className="inline-block text-white no-underline text-sm font-semibold py-3 px-5 rounded-[25px] bg-[#4CAF50]/25 border-2 border-[#4CAF50] transition-all duration-300 mb-5 backdrop-blur-[10px] text-shadow-[0_1px_3px_rgba(0,0,0,0.5)] shadow-[0_4px_15px_rgba(76,175,80,0.3)] hover:bg-[#4CAF50]/40 hover:transform hover:-translate-y-0.5 hover:shadow-[0_6px_20px_rgba(76,175,80,0.4)]">
           <i className="fas fa-key mr-2 text-xs"></i>
