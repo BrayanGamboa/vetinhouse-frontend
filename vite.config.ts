@@ -8,6 +8,14 @@ export default defineConfig({
   plugins: [react(), tailwindcss()],
   server: {
     port: 3000,
+    proxy: {
+      '/api': {
+        target: 'https://vetinhouse-backend-1.onrender.com',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, ''),
+        secure: true,
+      },
+    },
   },
   resolve: {
     alias: {

@@ -142,7 +142,7 @@ export default function LoginForm() {
           <span className="block text-white/90 text-sm mb-2 font-medium text-shadow-[0_1px_2px_rgba(0,0,0,0.3)]">
             ¿No tienes cuenta?
           </span>
-          <a href="#" className="inline-block text-white no-underline text-sm font-bold py-2 px-4 rounded-[20px] bg-gradient-to-br from-[#4CAF50] to-[#45a049] border-2 border-transparent transition-all duration-300 text-shadow-[0_1px_2px_rgba(0,0,0,0.3)] shadow-[0_4px_15px_rgba(76,175,80,0.3)] hover:bg-gradient-to-br hover:from-[#45a049] hover:to-[#4CAF50] hover:transform hover:-translate-y-0.5 hover:shadow-[0_6px_20px_rgba(76,175,80,0.4)]">
+          <a href="/register" className="inline-block text-white no-underline text-sm font-bold py-2 px-4 rounded-[20px] bg-gradient-to-br from-[#4CAF50] to-[#45a049] border-2 border-transparent transition-all duration-300 text-shadow-[0_1px_2px_rgba(0,0,0,0.3)] shadow-[0_4px_15px_rgba(76,175,80,0.3)] hover:bg-gradient-to-br hover:from-[#45a049] hover:to-[#4CAF50] hover:transform hover:-translate-y-0.5 hover:shadow-[0_6px_20px_rgba(76,175,80,0.4)]">
             <i className="fas fa-user-plus mr-2 text-xs"></i>
             Regístrate aquí
           </a>
