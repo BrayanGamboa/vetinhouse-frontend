@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useRegister } from '../hooks/useRegister';
 import type { RegisterCredentials } from '../types/register.types';
+import RegisterSuccessAnimation from './RegisterSuccessAnimation';
 
 export default function RegisterForm() {
   const [credentials, setCredentials] = useState<RegisterCredentials>({
@@ -14,6 +15,7 @@ export default function RegisterForm() {
   });
   const [message, setMessage] = useState('');
   const [messageType, setMessageType] = useState<'success' | 'error' | ''>('');
+  const [showSuccess, setShowSuccess] = useState(false);
   
   const { register, isLoading, showPassword, togglePasswordVisibility, documentTypes, roles } = useRegister();
 
@@ -29,16 +31,9 @@ export default function RegisterForm() {
     
     if (result.success) {
       showMessage(result.message, 'success');
-      // Reset form
-      setCredentials({
-        document: '',
-        name: '',
-        lastName: '',
-        email: '',
-        password: '',
-        roleId: 1,
-        documentTypeId: 1
-      });
+      setTimeout(() => {
+        setShowSuccess(true);
+      }, 1000);
     } else {
       showMessage(result.message, 'error');
     }
@@ -52,6 +47,10 @@ export default function RegisterForm() {
       setMessageType('');
     }, 5000);
   };
+
+  if (showSuccess) {
+    return <RegisterSuccessAnimation />;
+  }
 
   return (
     <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white/15 backdrop-blur-[20px] border border-white/20 rounded-[20px] p-8 w-[500px] max-w-[90vw] shadow-[0_25px_45px_rgba(0,0,0,0.2)] text-center z-[1000] transition-all duration-300 hover:shadow-[0_30px_50px_rgba(0,0,0,0.3)] animate-[fadeIn_1s_ease-in-out]">
