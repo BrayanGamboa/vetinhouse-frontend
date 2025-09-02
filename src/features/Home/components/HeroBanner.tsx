@@ -1,13 +1,6 @@
-import { useState } from 'react';
 import { Link } from 'react-router';
 
 export default function HeroBanner() {
-  const [isImageHovered, setIsImageHovered] = useState(false);
-  const [clickCount, setClickCount] = useState(0);
-
-  const handleImageClick = () => {
-    setClickCount(prev => prev + 1);
-  };
 
   return (
     <section className="flex items-center justify-between max-w-6xl mx-auto my-12 px-5 gap-8 flex-col lg:flex-row">
@@ -55,39 +48,12 @@ export default function HeroBanner() {
       </div>
       
       <div className="flex-1 order-1 lg:order-2 relative">
-        <div 
-          className="relative group cursor-pointer"
-          onMouseEnter={() => setIsImageHovered(true)}
-          onMouseLeave={() => setIsImageHovered(false)}
-          onClick={handleImageClick}
-        >
+        <div className="relative">
           <img 
             src="https://images.unsplash.com/photo-1583337130417-3346a1be7dee?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" 
             alt="Veterinario con mascota"
-            className="w-full max-w-lg rounded-3xl shadow-xl transition-all duration-500 hover:scale-105 hover:shadow-2xl"
+            className="w-full max-w-lg rounded-3xl shadow-xl"
           />
-          
-          {/* Overlay interactivo */}
-          <div className={`absolute inset-0 bg-green-500/20 rounded-3xl flex items-center justify-center transition-opacity duration-300 ${isImageHovered ? 'opacity-100' : 'opacity-0'}`}>
-            <div className="text-white text-center">
-              <i className="fas fa-heart text-4xl mb-2 animate-pulse"></i>
-              <p className="font-semibold">Cuidamos a tu mascota</p>
-              {clickCount > 0 && (
-                <p className="text-sm mt-2">❤️ {clickCount} {clickCount === 1 ? 'click' : 'clicks'}</p>
-              )}
-            </div>
-          </div>
-
-          {/* Elementos flotantes alrededor de la imagen */}
-          <div className="absolute -top-4 -right-4 w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-white animate-bounce">
-            <i className="fas fa-paw text-sm"></i>
-          </div>
-          <div className="absolute -bottom-4 -left-4 w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white animate-bounce" style={{animationDelay: '0.5s'}}>
-            <i className="fas fa-heart text-sm"></i>
-          </div>
-          <div className="absolute top-1/2 -left-6 w-6 h-6 bg-purple-500 rounded-full flex items-center justify-center text-white animate-bounce" style={{animationDelay: '1s'}}>
-            <i className="fas fa-star text-xs"></i>
-          </div>
         </div>
       </div>
     </section>

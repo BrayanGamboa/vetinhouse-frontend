@@ -1,149 +1,216 @@
 import MainLayout from '../../../core/layouts/MainLayout';
+import { usePetShop } from '../hooks/usePetShop';
+import ProductCard from '../components/ProductCard';
+import ShoppingCart from '../components/ShoppingCart';
 
 export default function PetShopView() {
+  const {
+    products,
+    cart,
+    categories,
+    selectedCategory,
+    setSelectedCategory,
+    searchTerm,
+    setSearchTerm,
+    paymentMethods,
+    addToCart,
+    removeFromCart,
+    updateQuantity,
+    getTotalPrice,
+    getTotalItems,
+    clearCart
+  } = usePetShop();
+
   return (
-    <MainLayout title="PetShop - Tienda Virtual" showBackgroundEffects={true}>
-      {/* Contenido específico del PetShop */}
-      <div className="py-8">
-        <div className="max-w-6xl mx-auto px-5">
+    <MainLayout title="PetShop - Tienda Virtual" showBackgroundEffects={false}>
+      <div className="min-h-screen bg-gray-50 py-8">
+        <div className="max-w-7xl mx-auto px-4">
           
-          {/* Hero Section */}
-          <section className="bg-gradient-to-br from-green-500 to-green-600 rounded-2xl p-10 text-white text-center mb-8">
-            <div className="text-4xl mb-4">
-              <i className="fas fa-shopping-cart"></i>
+          {/* Hero Banner */}
+          <div className="bg-gradient-to-r from-green-600 via-green-500 to-blue-500 rounded-2xl overflow-hidden mb-8 relative">
+            <div className="absolute inset-0 bg-black/10"></div>
+            <div className="relative z-10 px-8 py-16 text-center text-white">
+              <div className="max-w-4xl mx-auto">
+                <div className="flex items-center justify-center gap-4 mb-6">
+                  <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center">
+                    <i className="fas fa-store text-2xl"></i>
+                  </div>
+                  <h1 className="text-5xl font-bold">VetInHouse PetShop</h1>
+                </div>
+                
+                <p className="text-xl mb-8 text-green-50 leading-relaxed">
+                  La tienda online más completa para tu mascota. Productos premium, precios justos y entrega rápida.
+                </p>
+                
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-3xl mx-auto">
+                  <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
+                    <i className="fas fa-truck text-2xl mb-2"></i>
+                    <div className="font-semibold">Envío Gratis</div>
+                    <div className="text-sm text-green-100">En compras +$50</div>
+                  </div>
+                  <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
+                    <i className="fas fa-award text-2xl mb-2"></i>
+                    <div className="font-semibold">Calidad Premium</div>
+                    <div className="text-sm text-green-100">Marcas reconocidas</div>
+                  </div>
+                  <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
+                    <i className="fas fa-clock text-2xl mb-2"></i>
+                    <div className="font-semibold">Entrega 24h</div>
+                    <div className="text-sm text-green-100">En área metropolitana</div>
+                  </div>
+                </div>
+              </div>
             </div>
-            <h2 className="text-3xl font-bold mb-4">Bienvenido a nuestro PetShop</h2>
-            <p className="text-lg max-w-3xl mx-auto">
-              Encuentra todo lo que necesitas para el cuidado y bienestar de tu mascota. 
-              Alimentos premium, juguetes, accesorios y mucho más.
-            </p>
-          </section>
+            
+            {/* Decorative elements */}
+            <div className="absolute top-4 right-4 w-20 h-20 bg-white/5 rounded-full"></div>
+            <div className="absolute bottom-4 left-4 w-16 h-16 bg-white/5 rounded-full"></div>
+            <div className="absolute top-1/2 right-8 w-12 h-12 bg-white/5 rounded-full"></div>
+          </div>
 
-          {/* Categorías */}
-          <section className="mb-12">
-            <h3 className="text-2xl font-bold text-gray-800 mb-6 text-center">Categorías</h3>
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {/* Filtros */}
+          <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 mb-8">
+            <div className="flex flex-col lg:flex-row gap-6">
+              {/* Buscador */}
+              <div className="flex-1">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <i className="fas fa-search mr-2 text-green-600"></i>
+                  Buscar productos
+                </label>
+                <div className="relative">
+                  <input
+                    type="text"
+                    placeholder="Nombre, marca o descripción..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="w-full pl-4 pr-10 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
+                  />
+                  {searchTerm && (
+                    <button
+                      onClick={() => setSearchTerm('')}
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    >
+                      <i className="fas fa-times"></i>
+                    </button>
+                  )}
+                </div>
+              </div>
               
-              <div className="bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 cursor-pointer">
-                <div className="text-3xl text-green-500 mb-4 text-center">
-                  <i className="fas fa-bone"></i>
+              {/* Categorías */}
+              <div className="lg:w-auto">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <i className="fas fa-tags mr-2 text-green-600"></i>
+                  Categorías
+                </label>
+                <div className="flex gap-2 flex-wrap">
+                  {categories.map((category) => {
+                    const categoryIcons = {
+                      'Todos': 'fas fa-th-large',
+                      'Alimentos': 'fas fa-bone',
+                      'Juguetes': 'fas fa-football-ball',
+                      'Accesorios': 'fas fa-collar',
+                      'Cuidado': 'fas fa-spa'
+                    };
+                    
+                    return (
+                      <button
+                        key={category}
+                        onClick={() => setSelectedCategory(category)}
+                        className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
+                          selectedCategory === category
+                            ? 'bg-green-600 text-white shadow-lg transform scale-105'
+                            : 'bg-gray-100 text-gray-700 hover:bg-green-50 hover:text-green-700 hover:shadow-md'
+                        }`}
+                      >
+                        <i className={categoryIcons[category as keyof typeof categoryIcons] || 'fas fa-tag'}></i>
+                        {category}
+                      </button>
+                    );
+                  })}
                 </div>
-                <h4 className="text-lg font-semibold text-gray-800 mb-2 text-center">Alimentos</h4>
-                <p className="text-gray-600 text-sm text-center">
-                  Comida premium para perros y gatos de todas las edades
-                </p>
               </div>
-
-              <div className="bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 cursor-pointer">
-                <div className="text-3xl text-orange-500 mb-4 text-center">
-                  <i className="fas fa-football-ball"></i>
-                </div>
-                <h4 className="text-lg font-semibold text-gray-800 mb-2 text-center">Juguetes</h4>
-                <p className="text-gray-600 text-sm text-center">
-                  Juguetes interactivos y educativos para el entretenimiento
-                </p>
-              </div>
-
-              <div className="bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 cursor-pointer">
-                <div className="text-3xl text-blue-500 mb-4 text-center">
-                  <i className="fas fa-user-tag"></i>
-                </div>
-                <h4 className="text-lg font-semibold text-gray-800 mb-2 text-center">Accesorios</h4>
-                <p className="text-gray-600 text-sm text-center">
-                  Collares, correas, camas y accesorios de calidad
-                </p>
-              </div>
-
-              <div className="bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 cursor-pointer">
-                <div className="text-3xl text-purple-500 mb-4 text-center">
-                  <i className="fas fa-spa"></i>
-                </div>
-                <h4 className="text-lg font-semibold text-gray-800 mb-2 text-center">Cuidado</h4>
-                <p className="text-gray-600 text-sm text-center">
-                  Productos de higiene y cuidado personal para mascotas
-                </p>
-              </div>
-
             </div>
-          </section>
-
-          {/* Productos destacados */}
-          <section className="mb-12">
-            <h3 className="text-2xl font-bold text-gray-800 mb-6 text-center">Productos Destacados</h3>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              
-              <div className="bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-                <div className="h-48 bg-gradient-to-br from-green-100 to-green-200 flex items-center justify-center">
-                  <i className="fas fa-bone text-4xl text-green-500"></i>
-                </div>
-                <div className="p-6">
-                  <h4 className="text-lg font-semibold text-gray-800 mb-2">Royal Canin Premium</h4>
-                  <p className="text-gray-600 text-sm mb-4">
-                    Alimento completo y balanceado para perros adultos
-                  </p>
-                  <div className="flex justify-between items-center">
-                    <span className="text-2xl font-bold text-green-500">$45.99</span>
-                    <button className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors">
-                      Agregar
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-                <div className="h-48 bg-gradient-to-br from-orange-100 to-orange-200 flex items-center justify-center">
-                  <i className="fas fa-football-ball text-4xl text-orange-500"></i>
-                </div>
-                <div className="p-6">
-                  <h4 className="text-lg font-semibold text-gray-800 mb-2">Pelota Interactiva</h4>
-                  <p className="text-gray-600 text-sm mb-4">
-                    Pelota con sonidos y luces para entretenimiento
-                  </p>
-                  <div className="flex justify-between items-center">
-                    <span className="text-2xl font-bold text-green-500">$15.99</span>
-                    <button className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors">
-                      Agregar
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-                <div className="h-48 bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center">
-                  <i className="fas fa-user-tag text-4xl text-blue-500"></i>
-                </div>
-                <div className="p-6">
-                  <h4 className="text-lg font-semibold text-gray-800 mb-2">Collar Premium</h4>
-                  <p className="text-gray-600 text-sm mb-4">
-                    Collar ajustable con identificación LED integrada
-                  </p>
-                  <div className="flex justify-between items-center">
-                    <span className="text-2xl font-bold text-green-500">$29.99</span>
-                    <button className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors">
-                      Agregar
-                    </button>
-                  </div>
-                </div>
-              </div>
-
+            
+            {/* Resultados */}
+            <div className="mt-4 pt-4 border-t border-gray-100 flex items-center justify-between text-sm text-gray-600">
+              <span>
+                {products.length} producto{products.length !== 1 ? 's' : ''} encontrado{products.length !== 1 ? 's' : ''}
+                {selectedCategory !== 'Todos' && ` en ${selectedCategory}`}
+                {searchTerm && ` para "${searchTerm}"`}
+              </span>
+              {(searchTerm || selectedCategory !== 'Todos') && (
+                <button
+                  onClick={() => {
+                    setSearchTerm('');
+                    setSelectedCategory('Todos');
+                  }}
+                  className="text-green-600 hover:text-green-700 font-medium flex items-center gap-1"
+                >
+                  <i className="fas fa-undo text-xs"></i>
+                  Limpiar filtros
+                </button>
+              )}
             </div>
-          </section>
+          </div>
 
-          {/* CTA */}
-          <section className="text-center">
-            <div className="bg-gradient-to-r from-green-500 to-green-600 rounded-2xl p-8 text-white">
-              <h3 className="text-2xl font-bold mb-4">¿No encontraste lo que buscabas?</h3>
-              <p className="text-lg mb-6">
-                Contáctanos y te ayudaremos a encontrar el producto perfecto para tu mascota
-              </p>
-              <button className="bg-white text-green-500 px-8 py-3 rounded-full font-semibold hover:bg-gray-100 transition-colors">
-                Contactar Soporte
-              </button>
+          {/* Productos */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
+            {products.map((product) => (
+              <ProductCard
+                key={product.id}
+                product={product}
+                onAddToCart={addToCart}
+              />
+            ))}
+          </div>
+
+          {products.length === 0 && (
+            <div className="text-center py-12">
+              <i className="fas fa-search text-4xl text-gray-300 mb-4"></i>
+              <h3 className="text-xl font-semibold text-gray-600 mb-2">No se encontraron productos</h3>
+              <p className="text-gray-500">Intenta con otros términos de búsqueda o categoría</p>
             </div>
-          </section>
+          )}
 
+          {/* Información adicional */}
+          <div className="grid md:grid-cols-3 gap-6 mt-12">
+            <div className="bg-white rounded-xl p-6 text-center shadow-sm">
+              <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i className="fas fa-shipping-fast text-green-600 text-xl"></i>
+              </div>
+              <h3 className="font-semibold text-gray-900 mb-2">Envío Gratis</h3>
+              <p className="text-gray-600 text-sm">En compras mayores a $50</p>
+            </div>
+            
+            <div className="bg-white rounded-xl p-6 text-center shadow-sm">
+              <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i className="fas fa-shield-alt text-blue-600 text-xl"></i>
+              </div>
+              <h3 className="font-semibold text-gray-900 mb-2">Garantía</h3>
+              <p className="text-gray-600 text-sm">30 días de garantía en todos los productos</p>
+            </div>
+            
+            <div className="bg-white rounded-xl p-6 text-center shadow-sm">
+              <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i className="fas fa-headset text-purple-600 text-xl"></i>
+              </div>
+              <h3 className="font-semibold text-gray-900 mb-2">Soporte 24/7</h3>
+              <p className="text-gray-600 text-sm">Atención al cliente siempre disponible</p>
+            </div>
+          </div>
         </div>
       </div>
+
+      {/* Carrito de compras */}
+      <ShoppingCart
+        cart={cart}
+        totalPrice={getTotalPrice()}
+        totalItems={getTotalItems()}
+        paymentMethods={paymentMethods}
+        onUpdateQuantity={updateQuantity}
+        onRemoveItem={removeFromCart}
+        onClearCart={clearCart}
+      />
     </MainLayout>
   );
 }
