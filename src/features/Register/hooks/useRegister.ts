@@ -33,14 +33,16 @@ export const useRegister = () => {
         };
       }
 
-      if (credentials.password.length < 6) {
+      if (!credentials.password || credentials.password === 'google_auth') {
+        // Skip password validation for Google auth
+      } else if (credentials.password.length < 6) {
         return {
           success: false,
           message: 'La contraseña debe tener al menos 6 caracteres'
         };
       }
 
-      const response = await fetch('/api/user', {
+      const response = await fetch('https://vetinhouse-backend-1.onrender.com/user', {
         method: 'POST',
         mode: 'cors',
         headers: {
@@ -52,7 +54,7 @@ export const useRegister = () => {
           name: credentials.name,
           lastName: credentials.lastName,
           email: credentials.email,
-          password: credentials.password,
+          password: credentials.password || 'google_auth',
           roleId: credentials.roleId,
           documentTypeId: credentials.documentTypeId
         })

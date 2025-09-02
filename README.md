@@ -50,15 +50,19 @@ src/
 ## 🛠️ Getting Started
 
 ```bash
-# Clone the repo
-git clone https://github.com/naserrasoulii/feature-based-react
+# Clonar el repositorio
+git clone https://github.com/BrayanGamboa/vetinhouse-frontend
 
-# Install dependencies
-cd feature-based-react
-yarn
+# Instalar dependencias
+cd vetinhouse-frontend
+npm install
 
-# Start dev server
-yarn dev
+# Configurar variables de entorno
+cp .env.example .env
+# Editar .env con tu Google Client ID
+
+# Iniciar servidor de desarrollo
+npm run dev
 ```
 
 ---
@@ -121,19 +125,44 @@ GitHub: [@naserrasoulii](https://github.com/naserrasoulii)
 
 ---
 
-## 🔐 Autenticación con Google (Google Identity Services)
+## 🔐 Configuración de Google OAuth
 
-Para habilitar el login con Google en esta plantilla:
+### Paso 1: Crear proyecto en Google Cloud Console
 
-1. Crea un archivo `.env` en la raíz del proyecto con:
+1. Ve a [Google Cloud Console](https://console.cloud.google.com/)
+2. Crea un nuevo proyecto o selecciona uno existente
+3. Habilita la **Google Identity API**:
+   - Ve a "APIs y servicios" > "Biblioteca"
+   - Busca "Google Identity" y habilítala
 
+### Paso 2: Configurar OAuth 2.0
+
+1. Ve a "APIs y servicios" > "Credenciales"
+2. Haz clic en "+ CREAR CREDENCIALES" > "ID de cliente de OAuth 2.0"
+3. Selecciona "Aplicación web"
+4. Configura:
+   - **Nombre**: VetInHouse Frontend
+   - **Orígenes autorizados**: 
+     - `http://localhost:3002` (desarrollo)
+     - `https://tu-dominio.com` (producción)
+   - **URIs de redirección**: No necesario para Google Identity Services
+
+### Paso 3: Configurar variables de entorno
+
+1. Copia el **Client ID** generado
+2. Crea/edita el archivo `.env` en la raíz del proyecto:
+
+```bash
+VITE_GOOGLE_CLIENT_ID=tu_client_id_aqui.apps.googleusercontent.com
 ```
-VITE_GOOGLE_CLIENT_ID=TU_CLIENT_ID_DE_GOOGLE
-```
 
-2. Ejecuta `yarn dev` y visita la ruta `/login`.
-3. Haz clic en "Continuar con Google". El botón oficial se renderiza automáticamente.
+### Paso 4: Probar la integración
 
-Notas:
-- La validación del token (JWT) debe realizarse en el backend en producción.
-- En este proyecto solo se decodifica el JWT para obtener nombre, email y foto de perfil.
+1. Reinicia el servidor: `npm run dev`
+2. Ve a `http://localhost:3002/login`
+3. El botón de Google aparecerá automáticamente
+
+### Notas importantes:
+- El token JWT se valida en el frontend para obtener datos básicos
+- En producción, valida el token también en el backend
+- Los datos se guardan en localStorage: email, nombre, foto de perfil

@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useRegister } from '../hooks/useRegister';
+import { useGoogleRegister } from '../hooks/useGoogleRegister';
 import type { RegisterCredentials } from '../types/register.types';
 import RegisterSuccessAnimation from './RegisterSuccessAnimation';
 
@@ -16,13 +17,16 @@ export default function RegisterForm() {
   const [message, setMessage] = useState('');
   const [messageType, setMessageType] = useState<'success' | 'error' | ''>('');
   const [showSuccess, setShowSuccess] = useState(false);
+  const [isGoogleMode, setIsGoogleMode] = useState(false);
+  const googleBtnRef = useRef<HTMLDivElement | null>(null);
   
   const { register, isLoading, showPassword, togglePasswordVisibility, documentTypes, roles } = useRegister();
+  const { googleReady, setupGoogleButton } = useGoogleRegister();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!credentials.document || !credentials.name || !credentials.lastName || !credentials.email || !credentials.password) {
+    if (!credentials.document || !credentials.name || !credentials.lastName || !credentials.email || (!credentials.password && !isGoogleMode)) {
       showMessage('Por favor, completa todos los campos', 'error');
       return;
     }
@@ -32,7 +36,11 @@ export default function RegisterForm() {
     if (result.success) {
       showMessage(result.message, 'success');
       setTimeout(() => {
-        setShowSuccess(true);
+        if (isGoogleMode) {
+          window.location.href = '/home';
+        } else {
+          setShowSuccess(true);
+        }
       }, 1000);
     } else {
       showMessage(result.message, 'error');
@@ -48,6 +56,28 @@ export default function RegisterForm() {
     }, 5000);
   };
 
+  const handleGoogleData = (googleData: { name: string; email: string }) => {
+    setCredentials(prev => ({
+      ...prev,
+      name: googleData.name,
+      email: googleData.email,
+      password: 'google_auth_temp_password'
+    }));
+    setIsGoogleMode(true);
+  };
+
+  useEffect(() => {
+    if (!googleReady || !googleBtnRef.current || isGoogleMode) return;
+    if (googleBtnRef.current.childElementCount > 0) return;
+    
+    setupGoogleButton(googleBtnRef.current, handleGoogleData);
+
+    return () => {
+      try { window.google?.accounts.id.cancel(); } catch {}
+      if (googleBtnRef.current) googleBtnRef.current.innerHTML = '';
+    };
+  }, [googleReady, setupGoogleButton, isGoogleMode]);
+
   if (showSuccess) {
     return <RegisterSuccessAnimation />;
   }
@@ -59,7 +89,39 @@ export default function RegisterForm() {
         <h1 className="text-white text-2xl font-bold text-shadow-[0_2px_4px_rgba(0,0,0,0.3)]">VetInHouse</h1>
       </div>
       
-      <h2 className="text-white mb-6 text-xl font-semibold text-shadow-[0_2px_4px_rgba(0,0,0,0.3)] animate-[fadeInDown_1s_ease-in-out]">Crear Cuenta</h2>
+      <h2 className="text-white mb-6 text-xl font-semibold text-shadow-[0_2px_4px_rgba(0,0,0,0.3)] animate-[fadeInDown_1s_ease-in-out]">
+        {isGoogleMode ? 'Completar Registro' : 'Crear Cuenta'}
+      </h2>
+      
+      {!isGoogleMode && (
+        <>
+          <div className="mb-6 animate-[fadeInUp_1s_ease-in-out_0.5s_both]">
+            <div ref={googleBtnRef} className="flex justify-center w-full mb-4">
+              {/* Google renderizará aquí el botón oficial */}
+            </div>
+            {!import.meta.env.VITE_GOOGLE_CLIENT_ID && (
+              <div className="text-xs text-orange-300 bg-orange-500/20 border border-orange-500/30 rounded-lg p-2 mb-4">
+                Configura VITE_GOOGLE_CLIENT_ID para habilitar Google.
+              </div>
+            )}
+          </div>
+
+          <div className="flex items-center gap-3 my-6 animate-[fadeIn_1s_ease-in-out_1s_both]">
+            <div className="flex-1 h-px bg-white/20" />
+            <span className="text-white/80 text-sm">o</span>
+            <div className="flex-1 h-px bg-white/20" />
+          </div>
+        </>
+      )}
+      
+      {isGoogleMode && (
+        <div className="mb-4 p-3 bg-blue-500/20 border border-blue-500/30 rounded-lg">
+          <div className="flex items-center gap-2 text-blue-300 text-sm">
+            <i className="fab fa-google"></i>
+            <span>Datos de Google obtenidos. Completa la información restante.</span>
+          </div>
+        </div>
+      )}
       
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="grid grid-cols-2 gap-4">
@@ -97,7 +159,8 @@ export default function RegisterForm() {
               value={credentials.name}
               onChange={(e) => setCredentials({...credentials, name: e.target.value})}
               placeholder="Nombre"
-              className="w-full py-3 px-4 bg-white/10 border border-white/20 rounded-full text-white text-sm outline-none transition-all duration-300 backdrop-blur-[10px] placeholder-white/70 focus:bg-white/20 focus:border-[#4CAF50] focus:shadow-[0_0_20px_rgba(76,175,80,0.3)]"
+              className={`w-full py-3 px-4 bg-white/10 border border-white/20 rounded-full text-white text-sm outline-none transition-all duration-300 backdrop-blur-[10px] placeholder-white/70 focus:bg-white/20 focus:border-[#4CAF50] focus:shadow-[0_0_20px_rgba(76,175,80,0.3)] ${isGoogleMode ? 'bg-blue-500/10 border-blue-500/30' : ''}`}
+              readOnly={isGoogleMode}
               required
             />
           </div>
@@ -123,31 +186,34 @@ export default function RegisterForm() {
             value={credentials.email}
             onChange={(e) => setCredentials({...credentials, email: e.target.value})}
             placeholder="Correo Electrónico"
-            className="w-full py-3 px-12 bg-white/10 border border-white/20 rounded-full text-white text-sm outline-none transition-all duration-300 backdrop-blur-[10px] placeholder-white/70 focus:bg-white/20 focus:border-[#4CAF50] focus:shadow-[0_0_20px_rgba(76,175,80,0.3)]"
+            className={`w-full py-3 px-12 bg-white/10 border border-white/20 rounded-full text-white text-sm outline-none transition-all duration-300 backdrop-blur-[10px] placeholder-white/70 focus:bg-white/20 focus:border-[#4CAF50] focus:shadow-[0_0_20px_rgba(76,175,80,0.3)] ${isGoogleMode ? 'bg-blue-500/10 border-blue-500/30' : ''}`}
+            readOnly={isGoogleMode}
             required
           />
         </div>
 
-        <div className="relative animate-[fadeInRight_1s_ease-in-out_1.5s_both]">
-          <div className="absolute left-[18px] top-1/2 transform -translate-y-1/2 text-[#4CAF50] text-lg z-10">
-            <i className="fas fa-lock"></i>
+        {!isGoogleMode && (
+          <div className="relative animate-[fadeInRight_1s_ease-in-out_1.5s_both]">
+            <div className="absolute left-[18px] top-1/2 transform -translate-y-1/2 text-[#4CAF50] text-lg z-10">
+              <i className="fas fa-lock"></i>
+            </div>
+            <input
+              type={showPassword ? 'text' : 'password'}
+              value={credentials.password}
+              onChange={(e) => setCredentials({...credentials, password: e.target.value})}
+              placeholder="Contraseña"
+              className="w-full py-3 px-12 bg-white/10 border border-white/20 rounded-full text-white text-sm outline-none transition-all duration-300 backdrop-blur-[10px] placeholder-white/70 focus:bg-white/20 focus:border-[#4CAF50] focus:shadow-[0_0_20px_rgba(76,175,80,0.3)]"
+              required
+            />
+            <button
+              type="button"
+              onClick={togglePasswordVisibility}
+              className="absolute right-[18px] top-1/2 transform -translate-y-1/2 text-white/70 cursor-pointer transition-colors duration-300 z-10 hover:text-[#4CAF50]"
+            >
+              <i className={`fas ${showPassword ? 'fa-eye' : 'fa-eye-slash'}`}></i>
+            </button>
           </div>
-          <input
-            type={showPassword ? 'text' : 'password'}
-            value={credentials.password}
-            onChange={(e) => setCredentials({...credentials, password: e.target.value})}
-            placeholder="Contraseña"
-            className="w-full py-3 px-12 bg-white/10 border border-white/20 rounded-full text-white text-sm outline-none transition-all duration-300 backdrop-blur-[10px] placeholder-white/70 focus:bg-white/20 focus:border-[#4CAF50] focus:shadow-[0_0_20px_rgba(76,175,80,0.3)]"
-            required
-          />
-          <button
-            type="button"
-            onClick={togglePasswordVisibility}
-            className="absolute right-[18px] top-1/2 transform -translate-y-1/2 text-white/70 cursor-pointer transition-colors duration-300 z-10 hover:text-[#4CAF50]"
-          >
-            <i className={`fas ${showPassword ? 'fa-eye' : 'fa-eye-slash'}`}></i>
-          </button>
-        </div>
+        )}
 
         <div className="relative animate-[fadeInLeft_1s_ease-in-out_2s_both]">
           <div className="absolute left-[18px] top-1/2 transform -translate-y-1/2 text-[#4CAF50] text-lg z-10">
@@ -179,8 +245,8 @@ export default function RegisterForm() {
             </>
           ) : (
             <>
-              <span className="mr-2">Crear Cuenta</span>
-              <i className="fas fa-user-plus"></i>
+              <span className="mr-2">{isGoogleMode ? 'Completar Registro' : 'Crear Cuenta'}</span>
+              <i className={`${isGoogleMode ? 'fab fa-google' : 'fas fa-user-plus'}`}></i>
             </>
           )}
         </button>

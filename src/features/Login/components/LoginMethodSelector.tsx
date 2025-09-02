@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router';
 import { useLogin } from '../hooks/useLogin';
+import GoogleSetupInstructions from './GoogleSetupInstructions';
 
 interface LoginMethodSelectorProps {
   onSelectEmail: () => void;
@@ -56,9 +57,7 @@ export default function LoginMethodSelector({ onSelectEmail }: LoginMethodSelect
             {/* Google renderizará aquí el botón oficial */}
           </div>
           {!import.meta.env.VITE_GOOGLE_CLIENT_ID && (
-            <div className="text-xs text-red-300 bg-red-500/20 border border-red-500/30 rounded-lg p-2 mb-4">
-              Configura VITE_GOOGLE_CLIENT_ID para habilitar Google.
-            </div>
+            <GoogleSetupInstructions />
           )}
         </div>
 
