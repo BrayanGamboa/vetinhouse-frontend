@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import type { LoginCredentials, LoginResponse } from '../types/login.types';
 import { loadScript } from '../../../core/utils/loadScript';
 import { decodeJwt, type GoogleJwtPayload } from '../../../core/utils/jwt';
@@ -7,7 +7,6 @@ export const useLogin = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [googleReady, setGoogleReady] = useState(false);
-  const googleInitRef = useRef(false);
 
   const isValidEmail = (email: string): boolean => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -26,30 +25,43 @@ export const useLogin = () => {
         };
       }
 
-      // Simulación de autenticación con Firebase
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // Simulación de credenciales válidas (para demo)
-      if (credentials.email === 'juan123@yopmail.com' && credentials.password === 'juan123') {
-        // Guardar en localStorage
-        localStorage.setItem('userEmail', credentials.email);
-        localStorage.setItem('userId', '1');
-        
-        return {
-          success: true,
-          message: '¡Bienvenido de vuelta!',
-          user: {
-            id: '1',
-            email: credentials.email,
-            name: 'Juan - VetInHouse'
-          }
-        };
-      } else {
+      // Llamada real a la API (usa proxy /api para evitar CORS)
+      const resp = await fetch('/api/user/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'omit',
+        body: JSON.stringify({ email: credentials.email, password: credentials.password })
+      });
+
+      if (!resp.ok) {
+        const errText = await resp.text().catch(() => '');
         return {
           success: false,
-          message: 'Credenciales inválidas. Usa: juan123@yopmail.com / juan123'
+          message: `Error ${resp.status}: ${resp.statusText}${errText ? ` — ${errText}` : ''}`
         };
       }
+
+      // Intentar parsear json de respuesta
+      const data: any = await resp.json().catch(() => ({}));
+      // Normalizar usuario
+      const userObj = data?.user ?? data ?? {};
+      const user = {
+        id: userObj.id ?? userObj.userId ?? userObj._id ?? credentials.email,
+        email: userObj.email ?? credentials.email,
+        name: userObj.name ?? userObj.fullName ?? 'Usuario'
+      };
+
+      // Guardar info básica y token si viene
+      localStorage.setItem('auth_provider', 'credentials');
+      localStorage.setItem('userEmail', user.email);
+      localStorage.setItem('userId', String(user.id));
+      if (data?.token) localStorage.setItem('auth_token', String(data.token));
+
+      return {
+        success: true,
+        message: '¡Bienvenido de vuelta!',
+        user
+      };
     } catch (error) {
       return {
         success: false,

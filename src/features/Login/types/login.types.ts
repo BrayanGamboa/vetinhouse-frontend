@@ -7,7 +7,7 @@ export interface LoginResponse {
   success: boolean;
   message: string;
   user?: {
-    id: string;
+  id: string | number;
     email: string;
     name: string;
   };
