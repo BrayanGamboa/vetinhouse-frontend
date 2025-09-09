@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useRegister } from '../hooks/useRegister';
 import type { RegisterCredentials, DocumentType } from '../types/register.types';
 import DocumentTypeModal from './DocumentTypeModal';
+import RoleModal from './RoleModal';
 
 interface RegisterFormProps {
   onBack: () => void;
@@ -9,11 +10,16 @@ interface RegisterFormProps {
 
 const RegisterForm: React.FC<RegisterFormProps> = ({ onBack }) => {
   const [credentials, setCredentials] = useState<RegisterCredentials>({
-    username: '',
+    document: '',
+    name: '',
+    lastName: '',
     email: '',
-    password: ''
+    password: '',
+    roleId: 1,
+    documentTypeId: 1,
   });
   const [isDocumentTypeModalOpen, setIsDocumentTypeModalOpen] = useState(false);
+  const [isRoleModalOpen, setIsRoleModalOpen] = useState(false);
 
   const {
     loading,
@@ -25,7 +31,8 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onBack }) => {
     register,
     validatePassword,
     togglePasswordVisibility,
-    createDocumentType
+  createDocumentType,
+  createRole
   } = useRegister();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -47,9 +54,13 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onBack }) => {
   };
 
   const isFormValid = () => {
-    return credentials.username && 
-           credentials.email && 
+    return credentials.document &&
+           credentials.name &&
+           credentials.lastName &&
+           credentials.email &&
            credentials.password &&
+           credentials.roleId &&
+           credentials.documentTypeId &&
            Object.values(passwordRequirements).every(req => req);
   };
 
@@ -64,6 +75,13 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onBack }) => {
   const closeDocumentTypeModal = () => {
     setIsDocumentTypeModalOpen(false);
   };
+
+  const handleCreateRole = async (role: { id: number; name: string; description: string }) => {
+    await createRole(role);
+  };
+
+  const openRoleModal = () => setIsRoleModalOpen(true);
+  const closeRoleModal = () => setIsRoleModalOpen(false);
 
   return (
     <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 
@@ -98,7 +116,27 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onBack }) => {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Campo de usuario */}
+        {/* Documento */}
+        <div className="relative">
+          <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-[#5FD068] text-xl">
+            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M6 2h9l5 5v13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2zm8 1H6v18h12V8h-4V3z"/>
+            </svg>
+          </div>
+          <input
+            type="text"
+            name="document"
+            value={credentials.document}
+            onChange={handleInputChange}
+            placeholder="Documento"
+            className="w-full py-4 px-12 bg-white/10 border-none rounded-full text-white text-base 
+                     transition-all duration-300 placeholder-white/70
+                     focus:outline-none focus:bg-white/20 focus:shadow-[0_0_15px_rgba(95,208,104,0.3)]"
+            required
+          />
+        </div>
+
+        {/* Nombre */}
         <div className="relative">
           <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-[#5FD068] text-xl">
             <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
@@ -107,10 +145,10 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onBack }) => {
           </div>
           <input
             type="text"
-            name="username"
-            value={credentials.username}
+            name="name"
+            value={credentials.name}
             onChange={handleInputChange}
-            placeholder="Nombre de usuario"
+            placeholder="Nombre"
             className="w-full py-4 px-12 bg-white/10 border-none rounded-full text-white text-base 
                      transition-all duration-300 placeholder-white/70
                      focus:outline-none focus:bg-white/20 focus:shadow-[0_0_15px_rgba(95,208,104,0.3)]"
@@ -118,7 +156,27 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onBack }) => {
           />
         </div>
 
-        {/* Campo de email */}
+        {/* Apellido */}
+        <div className="relative">
+          <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-[#5FD068] text-xl">
+            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+            </svg>
+          </div>
+          <input
+            type="text"
+            name="lastName"
+            value={credentials.lastName}
+            onChange={handleInputChange}
+            placeholder="Apellido"
+            className="w-full py-4 px-12 bg-white/10 border-none rounded-full text-white text-base 
+                     transition-all duration-300 placeholder-white/70
+                     focus:outline-none focus:bg-white/20 focus:shadow-[0_0_15px_rgba(95,208,104,0.3)]"
+            required
+          />
+        </div>
+
+        {/* Email */}
         <div className="relative">
           <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-[#5FD068] text-xl">
             <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
@@ -172,6 +230,48 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onBack }) => {
               </svg>
             )}
           </button>
+        </div>
+
+        {/* Rol (numérico) */}
+        <div className="relative">
+          <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-[#5FD068] text-xl">
+            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z"/>
+            </svg>
+          </div>
+          <input
+            type="number"
+            name="roleId"
+            value={credentials.roleId}
+            onChange={handleInputChange}
+            placeholder="Role ID"
+            min={1}
+            className="w-full py-4 px-12 bg-white/10 border-none rounded-full text-white text-base 
+                     transition-all duration-300 placeholder-white/70
+                     focus:outline-none focus:bg-white/20 focus:shadow-[0_0_15px_rgba(95,208,104,0.3)]"
+            required
+          />
+        </div>
+
+        {/* Tipo de documento (numérico) */}
+        <div className="relative">
+          <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-[#5FD068] text-xl">
+            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm4 18H6V4h7v5h5v11z"/>
+            </svg>
+          </div>
+          <input
+            type="number"
+            name="documentTypeId"
+            value={credentials.documentTypeId}
+            onChange={handleInputChange}
+            placeholder="Tipo de documento ID"
+            min={1}
+            className="w-full py-4 px-12 bg-white/10 border-none rounded-full text-white text-base 
+                     transition-all duration-300 placeholder-white/70
+                     focus:outline-none focus:bg-white/20 focus:shadow-[0_0_15px_rgba(95,208,104,0.3)]"
+            required
+          />
         </div>
 
         {/* Indicador de fuerza de contraseña */}
@@ -239,6 +339,16 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onBack }) => {
           Crear Tipo de Documento
         </button>
 
+        {/* Botón para crear rol */}
+        <button
+          type="button"
+          onClick={openRoleModal}
+          className="w-full py-3 px-6 bg-[#8E44AD] text-white font-semibold rounded-full transition-all duration-300 hover:bg-[#7D3C98] hover:-translate-y-0.5 hover:shadow-[0_5px_15px_rgba(142,68,173,0.4)] flex items-center justify-center gap-3 mb-2"
+        >
+          <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a5 5 0 1 1 0 10 5 5 0 0 1 0-10zm-9 18a9 9 0 1 1 18 0H3z"/></svg>
+          Crear Rol
+        </button>
+
         {/* Botón de registro */}
         <button
           type="submit"
@@ -294,6 +404,14 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onBack }) => {
         isOpen={isDocumentTypeModalOpen}
         onClose={closeDocumentTypeModal}
         onSubmit={handleCreateDocumentType}
+        loading={loading}
+      />
+
+      {/* Modal para crear rol */}
+      <RoleModal
+        isOpen={isRoleModalOpen}
+        onClose={closeRoleModal}
+        onSubmit={handleCreateRole}
         loading={loading}
       />
     </div>

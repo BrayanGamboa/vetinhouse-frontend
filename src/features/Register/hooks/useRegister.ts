@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
-import type { RegisterCredentials, RegisterResponse, PasswordStrength, PasswordRequirements, DocumentType, CreateDocumentTypeResponse } from '../types/register.types';
+import type { RegisterCredentials, RegisterResponse, PasswordStrength, PasswordRequirements, DocumentType, CreateDocumentTypeResponse, RoleUser, CreateRoleResponse } from '../types/register.types';
 
 export const useRegister = () => {
   const [loading, setLoading] = useState(false);
@@ -68,52 +68,61 @@ export const useRegister = () => {
     setMessageType('');
 
     try {
-      // Simular llamada a API
-      await new Promise(resolve => setTimeout(resolve, 1500));
-
       // Validaciones básicas
-      if (!credentials.username || !credentials.email || !credentials.password) {
-        throw new Error('Por favor, llena todos los campos.');
+      const { document, name, lastName, email, password, roleId, documentTypeId } = credentials;
+      if (!document || !name || !lastName || !email || !password || !roleId || !documentTypeId) {
+        throw new Error('Por favor, completa todos los campos del formulario.');
       }
 
-      if (!validatePassword(credentials.password)) {
+      if (!validatePassword(password)) {
         throw new Error('La contraseña no cumple con los requisitos.');
       }
 
-      // Simular registro exitoso
+      // Llamada real a la API (usa proxy /api)
+      const resp = await fetch('/api/user', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'omit',
+        body: JSON.stringify({ document, name, lastName, email, password, roleId, documentTypeId })
+      });
+
+      if (!resp.ok) {
+        const errText = await resp.text().catch(() => '');
+        throw new Error(`Error ${resp.status}: ${resp.statusText}. ${errText}`);
+      }
+
+      const data = await resp.json().catch(() => ({}));
+
       const response: RegisterResponse = {
         success: true,
         message: 'Registro exitoso. Redirigiendo...',
         user: {
-          id: Date.now().toString(),
-          username: credentials.username,
-          email: credentials.email
+          id: data?.id ?? Date.now(),
+          name,
+          email,
+          document,
+          lastName,
+          roleId,
+          documentTypeId
         }
       };
 
       setMessage(response.message);
       setMessageType('success');
 
-      // Guardar sesión simulada
       localStorage.setItem('user', JSON.stringify(response.user));
 
-      // Redirigir después de un breve retraso
       setTimeout(() => {
         navigate('/home');
-      }, 1500);
+      }, 1200);
 
       return response;
 
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Error al registrar usuario';
-      
       setMessage(errorMessage);
       setMessageType('error');
-
-      return {
-        success: false,
-        message: errorMessage
-      };
+      return { success: false, message: errorMessage };
     } finally {
       setLoading(false);
     }
@@ -215,6 +224,45 @@ export const useRegister = () => {
     }
   };
 
+  const createRole = async (role: RoleUser): Promise<CreateRoleResponse> => {
+    setLoading(true);
+    setMessage('');
+    setMessageType('');
+
+    try {
+      const resp = await fetch('/api/role_user', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'omit',
+        body: JSON.stringify({ id: role.id, name: role.name, description: role.description })
+      });
+
+      if (!resp.ok) {
+        const errText = await resp.text().catch(() => '');
+        throw new Error(`Error ${resp.status}: ${resp.statusText}. ${errText}`);
+      }
+
+      const data = await resp.json().catch(() => role);
+
+      const success: CreateRoleResponse = {
+        success: true,
+        message: 'Rol creado exitosamente',
+        role: data
+      };
+
+      setMessage(success.message);
+      setMessageType('success');
+      return success;
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Error al crear rol';
+      setMessage(errorMessage);
+      setMessageType('error');
+      return { success: false, message: errorMessage };
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return {
     loading,
     message,
@@ -226,5 +274,6 @@ export const useRegister = () => {
     validatePassword,
     togglePasswordVisibility,
     createDocumentType
+  ,createRole
   };
 };
