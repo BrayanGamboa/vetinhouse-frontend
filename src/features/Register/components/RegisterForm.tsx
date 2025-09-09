@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useRegister } from '../hooks/useRegister';
-import type { RegisterCredentials } from '../types/register.types';
+import type { RegisterCredentials, DocumentType } from '../types/register.types';
+import DocumentTypeModal from './DocumentTypeModal';
 
 interface RegisterFormProps {
   onBack: () => void;
@@ -12,6 +13,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onBack }) => {
     email: '',
     password: ''
   });
+  const [isDocumentTypeModalOpen, setIsDocumentTypeModalOpen] = useState(false);
 
   const {
     loading,
@@ -22,7 +24,8 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onBack }) => {
     passwordRequirements,
     register,
     validatePassword,
-    togglePasswordVisibility
+    togglePasswordVisibility,
+    createDocumentType
   } = useRegister();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -48,6 +51,18 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onBack }) => {
            credentials.email && 
            credentials.password &&
            Object.values(passwordRequirements).every(req => req);
+  };
+
+  const handleCreateDocumentType = async (documentType: DocumentType) => {
+    await createDocumentType(documentType);
+  };
+
+  const openDocumentTypeModal = () => {
+    setIsDocumentTypeModalOpen(true);
+  };
+
+  const closeDocumentTypeModal = () => {
+    setIsDocumentTypeModalOpen(false);
   };
 
   return (
@@ -209,6 +224,21 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onBack }) => {
           </ul>
         </div>
 
+        {/* Botón para crear tipo de documento */}
+        <button
+          type="button"
+          onClick={openDocumentTypeModal}
+          className="w-full py-3 px-6 bg-[#2196F3] text-white font-semibold rounded-full 
+                   transition-all duration-300 hover:bg-[#1976D2] hover:-translate-y-0.5 
+                   hover:shadow-[0_5px_15px_rgba(33,150,243,0.4)] flex items-center justify-center gap-3
+                   mb-4"
+        >
+          <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm4 18H6V4h7v5h5v11zm-3-7v1h-4v-1h4zm0-2v1h-4v-1h4z"/>
+          </svg>
+          Crear Tipo de Documento
+        </button>
+
         {/* Botón de registro */}
         <button
           type="submit"
@@ -258,6 +288,14 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onBack }) => {
           </p>
         </div>
       </form>
+
+      {/* Modal para crear tipo de documento */}
+      <DocumentTypeModal
+        isOpen={isDocumentTypeModalOpen}
+        onClose={closeDocumentTypeModal}
+        onSubmit={handleCreateDocumentType}
+        loading={loading}
+      />
     </div>
   );
 };

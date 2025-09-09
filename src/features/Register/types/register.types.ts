@@ -26,3 +26,15 @@ export interface PasswordRequirements {
   hasNumber: boolean;
   hasSpecialChar: boolean;
 }
+
+export interface DocumentType {
+  id: number;
+  name: string;
+  description: string;
+}
+
+export interface CreateDocumentTypeResponse {
+  success: boolean;
+  message: string;
+  documentType?: DocumentType;
+}

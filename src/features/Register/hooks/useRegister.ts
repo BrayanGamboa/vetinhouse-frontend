@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
-import type { RegisterCredentials, RegisterResponse, PasswordStrength, PasswordRequirements } from '../types/register.types';
+import type { RegisterCredentials, RegisterResponse, PasswordStrength, PasswordRequirements, DocumentType, CreateDocumentTypeResponse } from '../types/register.types';
 
 export const useRegister = () => {
   const [loading, setLoading] = useState(false);
@@ -123,6 +123,98 @@ export const useRegister = () => {
     setShowPassword(!showPassword);
   };
 
+  const createDocumentType = async (documentType: DocumentType): Promise<CreateDocumentTypeResponse> => {
+    setLoading(true);
+    setMessage('');
+    setMessageType('');
+
+    try {
+      console.log('📤 Enviando datos:', {
+        id: documentType.id,
+        name: documentType.name,
+        description: documentType.description
+      });
+
+      const requestOptions = {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'omit' as RequestCredentials, // No enviar cookies
+        body: JSON.stringify({
+          id: documentType.id,
+          name: documentType.name,
+          description: documentType.description
+        }),
+      };
+
+      console.log('📋 Configuración de request:', requestOptions);
+
+  // Usar proxy de Vite en dev para evitar CORS
+  const response = await fetch('/api/document_type', requestOptions);
+
+      console.log('📥 Respuesta del servidor:', {
+        status: response.status,
+        statusText: response.statusText,
+        ok: response.ok,
+        headers: Object.fromEntries(response.headers.entries())
+      });
+
+      if (!response.ok) {
+        let errorText = '';
+        try {
+          errorText = await response.text();
+        } catch (e) {
+          errorText = 'No se pudo leer el error del servidor';
+        }
+        
+        console.error('❌ Error del servidor:', {
+          status: response.status,
+          statusText: response.statusText,
+          errorText: errorText,
+          url: response.url
+        });
+        
+        throw new Error(`Error ${response.status}: ${response.statusText}. ${errorText || 'Sin detalles adicionales'}`);
+      }
+
+      const data = await response.json();
+      console.log('✅ Datos recibidos:', data);
+
+      const successResponse: CreateDocumentTypeResponse = {
+        success: true,
+        message: 'Tipo de documento creado exitosamente',
+        documentType: data
+      };
+
+      setMessage(successResponse.message);
+      setMessageType('success');
+
+      return successResponse;
+
+    } catch (error) {
+      console.error('💥 Error capturado:', error);
+      
+      let errorMessage = 'Error desconocido al crear tipo de documento';
+      
+      if (error instanceof TypeError && error.message.includes('fetch')) {
+        errorMessage = 'Error de conexión. Verifica tu conexión a internet y que el servidor esté disponible.';
+      } else if (error instanceof Error) {
+        errorMessage = error.message;
+      }
+      
+      setMessage(errorMessage);
+      setMessageType('error');
+
+      return {
+        success: false,
+        message: errorMessage
+      };
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return {
     loading,
     message,
@@ -132,6 +224,7 @@ export const useRegister = () => {
     passwordRequirements,
     register,
     validatePassword,
-    togglePasswordVisibility
+    togglePasswordVisibility,
+    createDocumentType
   };
 };
