@@ -1,104 +1,121 @@
 import { useState } from 'react';
-import type { RegisterCredentials, RegisterResponse, DocumentType, Role } from '../types/register.types';
+import { useNavigate } from 'react-router';
+import type { RegisterCredentials, RegisterResponse, PasswordStrength, PasswordRequirements, DocumentType, CreateDocumentTypeResponse } from '../types/register.types';
 
 export const useRegister = () => {
-  const [isLoading, setIsLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState('');
+  const [messageType, setMessageType] = useState<'success' | 'error' | ''>('');
   const [showPassword, setShowPassword] = useState(false);
+  const [passwordStrength, setPasswordStrength] = useState<PasswordStrength>({
+    score: 0,
+    text: 'Fuerza de contraseña',
+    color: '#fff'
+  });
+  const [passwordRequirements, setPasswordRequirements] = useState<PasswordRequirements>({
+    minLength: false,
+    hasUppercase: false,
+    hasNumber: false,
+    hasSpecialChar: false
+  });
 
-  const documentTypes: DocumentType[] = [
-    { id: 1, name: 'Cédula de Ciudadanía' },
-    { id: 2, name: 'Cédula de Extranjería' },
-    { id: 3, name: 'Pasaporte' }
-  ];
+  const navigate = useNavigate();
 
-  const roles: Role[] = [
-    { id: 1, name: 'Cliente' },
-    { id: 2, name: 'Veterinario' },
-    { id: 3, name: 'Paseador' }
-  ];
+  const validatePassword = (password: string) => {
+    const requirements: PasswordRequirements = {
+      minLength: password.length >= 8,
+      hasUppercase: /[A-Z]/.test(password),
+      hasNumber: /[0-9]/.test(password),
+      hasSpecialChar: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)
+    };
 
-  const isValidEmail = (email: string): boolean => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
+    setPasswordRequirements(requirements);
+
+    // Calcular puntuación de fuerza
+    let score = 0;
+    if (requirements.minLength) score += 25;
+    if (requirements.hasUppercase) score += 25;
+    if (requirements.hasNumber) score += 25;
+    if (requirements.hasSpecialChar) score += 25;
+
+    // Determinar texto y color
+    let text = 'Fuerza de contraseña';
+    let color = '#fff';
+
+    if (score <= 25) {
+      text = 'Débil';
+      color = '#ff6b6b';
+    } else if (score <= 50) {
+      text = 'Regular';
+      color = '#ffa502';
+    } else if (score <= 75) {
+      text = 'Buena';
+      color = '#ffdd59';
+    } else {
+      text = 'Fuerte';
+      color = '#4CAF50';
+    }
+
+    setPasswordStrength({ score, text, color });
+
+    // Retornar si todos los requisitos se cumplen
+    return Object.values(requirements).every(req => req);
   };
 
   const register = async (credentials: RegisterCredentials): Promise<RegisterResponse> => {
-    setIsLoading(true);
-    
+    setLoading(true);
+    setMessage('');
+    setMessageType('');
+
     try {
-      if (!isValidEmail(credentials.email)) {
-        return {
-          success: false,
-          message: 'Por favor, ingresa un correo electrónico válido'
-        };
+      // Simular llamada a API
+      await new Promise(resolve => setTimeout(resolve, 1500));
+
+      // Validaciones básicas
+      if (!credentials.username || !credentials.email || !credentials.password) {
+        throw new Error('Por favor, llena todos los campos.');
       }
 
-      if (!credentials.password || credentials.password === 'google_auth') {
-        // Skip password validation for Google auth
-      } else if (credentials.password.length < 6) {
-        return {
-          success: false,
-          message: 'La contraseña debe tener al menos 6 caracteres'
-        };
+      if (!validatePassword(credentials.password)) {
+        throw new Error('La contraseña no cumple con los requisitos.');
       }
 
-      const response = await fetch('https://vetinhouse-backend-1.onrender.com/user', {
-        method: 'POST',
-        mode: 'cors',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
-        body: JSON.stringify({
-          document: credentials.document,
-          name: credentials.name,
-          lastName: credentials.lastName,
-          email: credentials.email,
-          password: credentials.password || 'google_auth',
-          roleId: credentials.roleId,
-          documentTypeId: credentials.documentTypeId
-        })
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        return {
-          success: true,
-          message: '¡Registro exitoso! Ya puedes iniciar sesión',
-          user: data
-        };
-      } else {
-        const errorText = await response.text();
-        let errorMessage = 'Error al registrar usuario';
-        
-        try {
-          const errorData = JSON.parse(errorText);
-          errorMessage = errorData.message || errorMessage;
-        } catch {
-          errorMessage = `Error ${response.status}: ${response.statusText}`;
+      // Simular registro exitoso
+      const response: RegisterResponse = {
+        success: true,
+        message: 'Registro exitoso. Redirigiendo...',
+        user: {
+          id: Date.now().toString(),
+          username: credentials.username,
+          email: credentials.email
         }
-        
-        return {
-          success: false,
-          message: errorMessage
-        };
-      }
-    } catch (error: any) {
-      console.error('Error de registro:', error);
+      };
+
+      setMessage(response.message);
+      setMessageType('success');
+
+      // Guardar sesión simulada
+      localStorage.setItem('user', JSON.stringify(response.user));
+
+      // Redirigir después de un breve retraso
+      setTimeout(() => {
+        navigate('/home');
+      }, 1500);
+
+      return response;
+
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Error al registrar usuario';
       
-      if (error.name === 'TypeError' && error.message.includes('fetch')) {
-        return {
-          success: false,
-          message: 'Error de conexión: No se puede conectar con el servidor. Verifica que el backend esté funcionando.'
-        };
-      }
-      
+      setMessage(errorMessage);
+      setMessageType('error');
+
       return {
         success: false,
-        message: `Error de conexión: ${error.message}`
+        message: errorMessage
       };
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
@@ -106,12 +123,108 @@ export const useRegister = () => {
     setShowPassword(!showPassword);
   };
 
+  const createDocumentType = async (documentType: DocumentType): Promise<CreateDocumentTypeResponse> => {
+    setLoading(true);
+    setMessage('');
+    setMessageType('');
+
+    try {
+      console.log('📤 Enviando datos:', {
+        id: documentType.id,
+        name: documentType.name,
+        description: documentType.description
+      });
+
+      const requestOptions = {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'omit' as RequestCredentials, // No enviar cookies
+        body: JSON.stringify({
+          id: documentType.id,
+          name: documentType.name,
+          description: documentType.description
+        }),
+      };
+
+      console.log('📋 Configuración de request:', requestOptions);
+
+  // Usar proxy de Vite en dev para evitar CORS
+  const response = await fetch('/api/document_type', requestOptions);
+
+      console.log('📥 Respuesta del servidor:', {
+        status: response.status,
+        statusText: response.statusText,
+        ok: response.ok,
+        headers: Object.fromEntries(response.headers.entries())
+      });
+
+      if (!response.ok) {
+        let errorText = '';
+        try {
+          errorText = await response.text();
+        } catch (e) {
+          errorText = 'No se pudo leer el error del servidor';
+        }
+        
+        console.error('❌ Error del servidor:', {
+          status: response.status,
+          statusText: response.statusText,
+          errorText: errorText,
+          url: response.url
+        });
+        
+        throw new Error(`Error ${response.status}: ${response.statusText}. ${errorText || 'Sin detalles adicionales'}`);
+      }
+
+      const data = await response.json();
+      console.log('✅ Datos recibidos:', data);
+
+      const successResponse: CreateDocumentTypeResponse = {
+        success: true,
+        message: 'Tipo de documento creado exitosamente',
+        documentType: data
+      };
+
+      setMessage(successResponse.message);
+      setMessageType('success');
+
+      return successResponse;
+
+    } catch (error) {
+      console.error('💥 Error capturado:', error);
+      
+      let errorMessage = 'Error desconocido al crear tipo de documento';
+      
+      if (error instanceof TypeError && error.message.includes('fetch')) {
+        errorMessage = 'Error de conexión. Verifica tu conexión a internet y que el servidor esté disponible.';
+      } else if (error instanceof Error) {
+        errorMessage = error.message;
+      }
+      
+      setMessage(errorMessage);
+      setMessageType('error');
+
+      return {
+        success: false,
+        message: errorMessage
+      };
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return {
-    register,
-    isLoading,
+    loading,
+    message,
+    messageType,
     showPassword,
+    passwordStrength,
+    passwordRequirements,
+    register,
+    validatePassword,
     togglePasswordVisibility,
-    documentTypes,
-    roles
+    createDocumentType
   };
 };
