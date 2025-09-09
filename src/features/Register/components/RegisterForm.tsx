@@ -1,25 +1,33 @@
-import React, { useEffect, useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useRegister } from '../hooks/useRegister';
-import type { RegisterCredentials, DocumentType } from '../types/register.types';
-import DocumentTypeModal from './DocumentTypeModal';
-import RoleModal from './RoleModal';
+import { useGoogleRegister } from '../hooks/useGoogleRegister';
+import type { RegisterCredentials } from '../types/register.types';
+<<<<<<< HEAD
+import RegisterSuccessAnimation from './RegisterSuccessAnimation';
+=======
+import CreateDocumentTypeModal from './CreateDocumentTypeModal';
+>>>>>>> e16c912 (conexion api crear documento exitosa)
 
-interface RegisterFormProps {
-  onBack: () => void;
-}
-
-const RegisterForm: React.FC<RegisterFormProps> = ({ onBack }) => {
+export default function RegisterForm() {
   const [credentials, setCredentials] = useState<RegisterCredentials>({
     document: '',
     name: '',
     lastName: '',
     email: '',
     password: '',
-  roleId: 0,
-  documentTypeId: 0,
+    roleId: 1,
+    documentTypeId: 1
   });
-  const [isDocumentTypeModalOpen, setIsDocumentTypeModalOpen] = useState(false);
-  const [isRoleModalOpen, setIsRoleModalOpen] = useState(false);
+<<<<<<< HEAD
+  const [message, setMessage] = useState('');
+  const [messageType, setMessageType] = useState<'success' | 'error' | ''>('');
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [isGoogleMode, setIsGoogleMode] = useState(false);
+  const googleBtnRef = useRef<HTMLDivElement | null>(null);
+  
+  const { register, isLoading, showPassword, togglePasswordVisibility, documentTypes, roles } = useRegister();
+  const { googleReady, setupGoogleButton } = useGoogleRegister();
+=======
 
   const {
     loading,
@@ -30,35 +38,11 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onBack }) => {
     passwordRequirements,
     register,
     validatePassword,
-    togglePasswordVisibility,
-  createDocumentType,
-  createRole,
-  fetchDocumentTypes,
-  fetchRoles
+    togglePasswordVisibility
   } = useRegister();
 
-  const [documentTypes, setDocumentTypes] = useState<Array<{ id: number; name: string; description: string }>>([]);
-  const [roles, setRoles] = useState<Array<{ id: number; name: string; description: string }>>([]);
-
-  useEffect(() => {
-    // Cargar combos al montar
-    const loadData = async () => {
-      const [dt, rl] = await Promise.all([
-        fetchDocumentTypes(),
-        fetchRoles(),
-      ]);
-      setDocumentTypes(dt);
-      setRoles(rl);
-
-      // Si hay datos, prefijar el primer valor si no hay selección
-      setCredentials(prev => ({
-        ...prev,
-        documentTypeId: prev.documentTypeId || (dt[0]?.id ?? prev.documentTypeId),
-        roleId: prev.roleId || (rl[0]?.id ?? prev.roleId),
-      }));
-    };
-    loadData();
-  }, []);
+  const [showDocModal, setShowDocModal] = useState(false);
+  const [docCreateToast, setDocCreateToast] = useState<string | null>(null);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -72,365 +56,289 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onBack }) => {
       validatePassword(value);
     }
   };
+>>>>>>> e16c912 (conexion api crear documento exitosa)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await register(credentials);
-  };
-
-  const isFormValid = () => {
-    return credentials.document &&
-           credentials.name &&
-           credentials.lastName &&
-           credentials.email &&
-           credentials.password &&
-           credentials.roleId &&
-           credentials.documentTypeId &&
-           Object.values(passwordRequirements).every(req => req);
-  };
-
-  const handleCreateDocumentType = async (documentType: DocumentType) => {
-    const res = await createDocumentType(documentType);
-    if (res.success && res.documentType) {
-      // Actualizar lista y seleccionar el nuevo
-      setDocumentTypes(prev => {
-        const next = [...prev.filter(d => d.id !== res.documentType!.id), res.documentType!].sort((a,b)=>a.id-b.id);
-        return next;
-      });
-      setCredentials(prev => ({ ...prev, documentTypeId: res.documentType!.id }));
-      closeDocumentTypeModal();
+    
+    if (!credentials.document || !credentials.name || !credentials.lastName || !credentials.email || (!credentials.password && !isGoogleMode)) {
+      showMessage('Por favor, completa todos los campos', 'error');
+      return;
+    }
+    
+    const result = await register(credentials);
+    
+    if (result.success) {
+      showMessage(result.message, 'success');
+      setTimeout(() => {
+        if (isGoogleMode) {
+          window.location.href = '/home';
+        } else {
+          setShowSuccess(true);
+        }
+      }, 1000);
+    } else {
+      showMessage(result.message, 'error');
     }
   };
 
-  const openDocumentTypeModal = () => {
-    setIsDocumentTypeModalOpen(true);
+  const showMessage = (msg: string, type: 'success' | 'error') => {
+    setMessage(msg);
+    setMessageType(type);
+    setTimeout(() => {
+      setMessage('');
+      setMessageType('');
+    }, 5000);
   };
 
-  const closeDocumentTypeModal = () => {
-    setIsDocumentTypeModalOpen(false);
+  const handleGoogleData = (googleData: { name: string; email: string }) => {
+    setCredentials(prev => ({
+      ...prev,
+      name: googleData.name,
+      email: googleData.email,
+      password: 'google_auth_temp_password'
+    }));
+    setIsGoogleMode(true);
   };
 
-  const handleCreateRole = async (role: { id: number; name: string; description: string }) => {
-    const res = await createRole(role);
-    if (res.success && res.role) {
-      setRoles(prev => {
-        const next = [...prev.filter(r => r.id !== res.role!.id), res.role!].sort((a,b)=>a.id-b.id);
-        return next;
-      });
-      setCredentials(prev => ({ ...prev, roleId: res.role!.id }));
-      closeRoleModal();
-    }
-  };
+  useEffect(() => {
+    if (!googleReady || !googleBtnRef.current || isGoogleMode) return;
+    
+    // Limpiar contenido previo
+    googleBtnRef.current.innerHTML = '';
+    
+    setupGoogleButton(googleBtnRef.current, handleGoogleData);
 
-  const openRoleModal = () => setIsRoleModalOpen(true);
-  const closeRoleModal = () => setIsRoleModalOpen(false);
+    return () => {
+      try { window.google?.accounts.id.cancel(); } catch {}
+      if (googleBtnRef.current) googleBtnRef.current.innerHTML = '';
+    };
+  }, [googleReady, setupGoogleButton, isGoogleMode]);
+
+  if (showSuccess) {
+    return <RegisterSuccessAnimation />;
+  }
 
   return (
-    <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 
-                    bg-white/10 backdrop-blur-[10px] p-10 rounded-[20px] text-center text-white 
-                    w-[450px] shadow-[0_15px_35px_rgba(0,0,0,0.2)] border border-white/10 
-                    transition-all duration-300 max-h-[90vh] overflow-y-auto
-                    hover:transform hover:-translate-x-1/2 hover:-translate-y-[52%] 
-                    hover:shadow-[0_20px_40px_rgba(0,0,0,0.3)]
-                    animate-fadeInCenter">
-      
-      {/* Botón de regresar */}
-      <button 
-        onClick={onBack}
-        className="absolute top-4 left-4 text-white/70 hover:text-white transition-colors duration-200"
-      >
-        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-        </svg>
-      </button>
-
-      {/* Logo y título */}
-      <div className="mb-8">
-        <div className="text-5xl text-[#5FD068] mb-3 animate-pulse">
-          <svg className="w-12 h-12 mx-auto" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M19 14.46V8.5a6.5 6.5 0 0 0-13 0v5.96l-1.85 1.85A1 1 0 0 0 4.5 18h15a1 1 0 0 0 .35-1.69L19 14.46zM12 22a2 2 0 0 0 2-2H10a2 2 0 0 0 2 2z"/>
-          </svg>
-        </div>
-        <h1 className="text-3xl font-bold text-white mb-3 text-shadow-[2px_2px_4px_rgba(0,0,0,0.3)]">
-          VetInHouse
-        </h1>
-        <h2 className="text-2xl text-white mb-8">Registro</h2>
+    <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white/15 backdrop-blur-[20px] border border-white/20 rounded-[20px] p-8 w-[500px] max-w-[90vw] shadow-[0_25px_45px_rgba(0,0,0,0.2)] text-center z-[1000] transition-all duration-300 hover:shadow-[0_30px_50px_rgba(0,0,0,0.3)] animate-[fadeIn_1s_ease-in-out]">
+      <div className="mb-6">
+        <i className="fas fa-clinic-medical text-4xl text-[#4CAF50] mb-2 text-shadow-[0_0_20px_rgba(76,175,80,0.5)] animate-[pulse_2s_infinite]"></i>
+        <h1 className="text-white text-2xl font-bold text-shadow-[0_2px_4px_rgba(0,0,0,0.3)]">VetInHouse</h1>
       </div>
+<<<<<<< HEAD
+      
+      <h2 className="text-white mb-6 text-xl font-semibold text-shadow-[0_2px_4px_rgba(0,0,0,0.3)] animate-[fadeInDown_1s_ease-in-out]">
+        {isGoogleMode ? 'Completar Registro' : 'Crear Cuenta'}
+      </h2>
+      
+      {!isGoogleMode && (
+        <>
+          <div className="mb-6 animate-[fadeInUp_1s_ease-in-out_0.5s_both]">
+            <div ref={googleBtnRef} className="flex justify-center w-full mb-4">
+              {/* Google renderizará aquí el botón oficial */}
+            </div>
+            {!import.meta.env.VITE_GOOGLE_CLIENT_ID && (
+              <div className="text-xs text-orange-300 bg-orange-500/20 border border-orange-500/30 rounded-lg p-2 mb-4">
+                Configura VITE_GOOGLE_CLIENT_ID para habilitar Google.
+              </div>
+            )}
+          </div>
+
+          <div className="flex items-center gap-3 my-6 animate-[fadeIn_1s_ease-in-out_1s_both]">
+            <div className="flex-1 h-px bg-white/20" />
+            <span className="text-white/80 text-sm">o</span>
+            <div className="flex-1 h-px bg-white/20" />
+          </div>
+        </>
+      )}
+      
+      {isGoogleMode && (
+        <div className="mb-4 p-3 bg-blue-500/20 border border-blue-500/30 rounded-lg">
+          <div className="flex items-center gap-2 text-blue-300 text-sm">
+            <i className="fab fa-google"></i>
+            <span>Datos de Google obtenidos. Completa la información restante.</span>
+          </div>
+        </div>
+      )}
+      
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="grid grid-cols-2 gap-4">
+          <div className="relative animate-[fadeInLeft_1s_ease-in-out_0.5s_both]">
+            <select
+              value={credentials.documentTypeId}
+              onChange={(e) => setCredentials({...credentials, documentTypeId: Number(e.target.value)})}
+              className="w-full py-3 px-4 bg-white/10 border border-white/20 rounded-full text-white text-sm outline-none transition-all duration-300 backdrop-blur-[10px] focus:bg-white/20 focus:border-[#4CAF50] focus:shadow-[0_0_20px_rgba(76,175,80,0.3)]"
+              required
+            >
+              {documentTypes.map(type => (
+                <option key={type.id} value={type.id} className="bg-gray-800 text-white">
+                  {type.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="relative animate-[fadeInRight_1s_ease-in-out_0.5s_both]">
+            <input
+              type="text"
+              value={credentials.document}
+              onChange={(e) => setCredentials({...credentials, document: e.target.value})}
+              placeholder="Número de Documento"
+              className="w-full py-3 px-4 bg-white/10 border border-white/20 rounded-full text-white text-sm outline-none transition-all duration-300 backdrop-blur-[10px] placeholder-white/70 focus:bg-white/20 focus:border-[#4CAF50] focus:shadow-[0_0_20px_rgba(76,175,80,0.3)]"
+              required
+            />
+=======
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Documento */}
-        <div className="relative">
-          <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-[#5FD068] text-xl">
-            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M6 2h9l5 5v13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2zm8 1H6v18h12V8h-4V3z"/>
-            </svg>
-          </div>
-          <input
-            type="text"
-            name="document"
-            value={credentials.document}
-            onChange={handleInputChange}
-            placeholder="Documento"
-            className="w-full py-4 px-12 bg-white/10 border-none rounded-full text-white text-base 
-                     transition-all duration-300 placeholder-white/70
-                     focus:outline-none focus:bg-white/20 focus:shadow-[0_0_15px_rgba(95,208,104,0.3)]"
-            required
-          />
+        {/* Acciones adicionales */}
+        <div className="flex items-center justify-between">
+          <span className="text-white/80 text-sm">¿No encuentras tu tipo de documento?</span>
+          <button
+            type="button"
+            onClick={() => setShowDocModal(true)}
+            className="text-sm bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-full text-white"
+          >
+            Crear tipo de documento
+          </button>
         </div>
-
-        {/* Nombre */}
+        {/* Campo de usuario */}
         <div className="relative">
           <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-[#5FD068] text-xl">
             <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
               <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
             </svg>
+>>>>>>> e16c912 (conexion api crear documento exitosa)
           </div>
-          <input
-            type="text"
-            name="name"
-            value={credentials.name}
-            onChange={handleInputChange}
-            placeholder="Nombre"
-            className="w-full py-4 px-12 bg-white/10 border-none rounded-full text-white text-base 
-                     transition-all duration-300 placeholder-white/70
-                     focus:outline-none focus:bg-white/20 focus:shadow-[0_0_15px_rgba(95,208,104,0.3)]"
-            required
-          />
         </div>
 
-        {/* Apellido */}
-        <div className="relative">
-          <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-[#5FD068] text-xl">
-            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-            </svg>
+        <div className="grid grid-cols-2 gap-4">
+          <div className="relative animate-[fadeInLeft_1s_ease-in-out_1s_both]">
+            <input
+              type="text"
+              value={credentials.name}
+              onChange={(e) => setCredentials({...credentials, name: e.target.value})}
+              placeholder="Nombre"
+              className={`w-full py-3 px-4 bg-white/10 border border-white/20 rounded-full text-white text-sm outline-none transition-all duration-300 backdrop-blur-[10px] placeholder-white/70 focus:bg-white/20 focus:border-[#4CAF50] focus:shadow-[0_0_20px_rgba(76,175,80,0.3)] ${isGoogleMode ? 'bg-blue-500/10 border-blue-500/30' : ''}`}
+              readOnly={isGoogleMode}
+              required
+            />
           </div>
-          <input
-            type="text"
-            name="lastName"
-            value={credentials.lastName}
-            onChange={handleInputChange}
-            placeholder="Apellido"
-            className="w-full py-4 px-12 bg-white/10 border-none rounded-full text-white text-base 
-                     transition-all duration-300 placeholder-white/70
-                     focus:outline-none focus:bg-white/20 focus:shadow-[0_0_15px_rgba(95,208,104,0.3)]"
-            required
-          />
+
+          <div className="relative animate-[fadeInRight_1s_ease-in-out_1s_both]">
+            <input
+              type="text"
+              value={credentials.lastName}
+              onChange={(e) => setCredentials({...credentials, lastName: e.target.value})}
+              placeholder="Apellido"
+              className="w-full py-3 px-4 bg-white/10 border border-white/20 rounded-full text-white text-sm outline-none transition-all duration-300 backdrop-blur-[10px] placeholder-white/70 focus:bg-white/20 focus:border-[#4CAF50] focus:shadow-[0_0_20px_rgba(76,175,80,0.3)]"
+              required
+            />
+          </div>
         </div>
 
-        {/* Email */}
-        <div className="relative">
-          <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-[#5FD068] text-xl">
-            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
-            </svg>
+        <div className="relative animate-[fadeInLeft_1s_ease-in-out_1.5s_both]">
+          <div className="absolute left-[18px] top-1/2 transform -translate-y-1/2 text-[#4CAF50] text-lg z-10">
+            <i className="fas fa-envelope"></i>
           </div>
           <input
             type="email"
-            name="email"
             value={credentials.email}
-            onChange={handleInputChange}
+            onChange={(e) => setCredentials({...credentials, email: e.target.value})}
             placeholder="Correo Electrónico"
-            className="w-full py-4 px-12 bg-white/10 border-none rounded-full text-white text-base 
-                     transition-all duration-300 placeholder-white/70
-                     focus:outline-none focus:bg-white/20 focus:shadow-[0_0_15px_rgba(95,208,104,0.3)]"
+            className={`w-full py-3 px-12 bg-white/10 border border-white/20 rounded-full text-white text-sm outline-none transition-all duration-300 backdrop-blur-[10px] placeholder-white/70 focus:bg-white/20 focus:border-[#4CAF50] focus:shadow-[0_0_20px_rgba(76,175,80,0.3)] ${isGoogleMode ? 'bg-blue-500/10 border-blue-500/30' : ''}`}
+            readOnly={isGoogleMode}
             required
           />
         </div>
 
-        {/* Campo de contraseña */}
-        <div className="relative">
-          <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-[#5FD068] text-xl">
-            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/>
-            </svg>
-          </div>
-          <input
-            type={showPassword ? "text" : "password"}
-            name="password"
-            value={credentials.password}
-            onChange={handleInputChange}
-            placeholder="Contraseña"
-            className="w-full py-4 px-12 bg-white/10 border-none rounded-full text-white text-base 
-                     transition-all duration-300 placeholder-white/70
-                     focus:outline-none focus:bg-white/20 focus:shadow-[0_0_15px_rgba(95,208,104,0.3)]"
-            required
-          />
-          <button
-            type="button"
-            onClick={togglePasswordVisibility}
-            className="absolute right-4 top-1/2 transform -translate-y-1/2 text-[#5FD068] 
-                     hover:text-[#45a049] transition-colors duration-300"
-          >
-            {showPassword ? (
-              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.43-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.16c0-1.66-1.34-3-3-3l-.17.01z"/>
-              </svg>
-            ) : (
-              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
-              </svg>
-            )}
-          </button>
-        </div>
-
-        {/* Rol (select) */}
-        <div className="relative">
-          <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-[#5FD068] text-xl">
-            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z"/>
-            </svg>
-          </div>
-          <select
-            name="roleId"
-            value={credentials.roleId}
-            onChange={(e) => setCredentials(prev => ({ ...prev, roleId: Number(e.target.value) }))}
-            className="w-full py-4 pl-12 pr-6 bg-white/10 border-none rounded-full text-white text-base 
-                     transition-all duration-300 placeholder-white/70 appearance-none
-                     focus:outline-none focus:bg-white/20 focus:shadow-[0_0_15px_rgba(95,208,104,0.3)]"
-            required
-          >
-            {roles.length === 0 && <option value="">Cargando roles...</option>}
-            {roles.map(r => (
-              <option key={r.id} value={r.id} className="bg-[#1f2937] text-white">
-                {r.name} — {r.description}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {/* Tipo de documento (select) */}
-        <div className="relative">
-          <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-[#5FD068] text-xl">
-            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm4 18H6V4h7v5h5v11z"/>
-            </svg>
-          </div>
-          <select
-            name="documentTypeId"
-            value={credentials.documentTypeId}
-            onChange={(e) => setCredentials(prev => ({ ...prev, documentTypeId: Number(e.target.value) }))}
-            className="w-full py-4 pl-12 pr-6 bg-white/10 border-none rounded-full text-white text-base 
-                     transition-all duration-300 placeholder-white/70 appearance-none
-                     focus:outline-none focus:bg-white/20 focus:shadow-[0_0_15px_rgba(95,208,104,0.3)]"
-            required
-          >
-            {documentTypes.length === 0 && <option value="">Cargando tipos de documento...</option>}
-            {documentTypes.map(dt => (
-              <option key={dt.id} value={dt.id} className="bg-[#1f2937] text-white">
-                {dt.name} — {dt.description}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {/* Indicador de fuerza de contraseña */}
-        <div className="mb-5">
-          <div className="h-[5px] bg-white/20 rounded-[5px] mb-3 overflow-hidden">
-            <div 
-              className="h-full transition-all duration-300"
-              style={{ 
-                width: `${passwordStrength.score}%`,
-                backgroundColor: passwordStrength.color
-              }}
+        {!isGoogleMode && (
+          <div className="relative animate-[fadeInRight_1s_ease-in-out_1.5s_both]">
+            <div className="absolute left-[18px] top-1/2 transform -translate-y-1/2 text-[#4CAF50] text-lg z-10">
+              <i className="fas fa-lock"></i>
+            </div>
+            <input
+              type={showPassword ? 'text' : 'password'}
+              value={credentials.password}
+              onChange={(e) => setCredentials({...credentials, password: e.target.value})}
+              placeholder="Contraseña"
+              className="w-full py-3 px-12 bg-white/10 border border-white/20 rounded-full text-white text-sm outline-none transition-all duration-300 backdrop-blur-[10px] placeholder-white/70 focus:bg-white/20 focus:border-[#4CAF50] focus:shadow-[0_0_20px_rgba(76,175,80,0.3)]"
+              required
             />
+            <button
+              type="button"
+              onClick={togglePasswordVisibility}
+              className="absolute right-[18px] top-1/2 transform -translate-y-1/2 text-white/70 cursor-pointer transition-colors duration-300 z-10 hover:text-[#4CAF50]"
+            >
+              <i className={`fas ${showPassword ? 'fa-eye' : 'fa-eye-slash'}`}></i>
+            </button>
           </div>
-          <p 
-            className="text-sm"
-            style={{ color: passwordStrength.color }}
+        )}
+
+        <div className="relative animate-[fadeInLeft_1s_ease-in-out_2s_both]">
+          <div className="absolute left-[18px] top-1/2 transform -translate-y-1/2 text-[#4CAF50] text-lg z-10">
+            <i className="fas fa-user-tag"></i>
+          </div>
+          <select
+            value={credentials.roleId}
+            onChange={(e) => setCredentials({...credentials, roleId: Number(e.target.value)})}
+            className="w-full py-3 px-12 bg-white/10 border border-white/20 rounded-full text-white text-sm outline-none transition-all duration-300 backdrop-blur-[10px] focus:bg-white/20 focus:border-[#4CAF50] focus:shadow-[0_0_20px_rgba(76,175,80,0.3)]"
+            required
           >
-            {passwordStrength.text}
-          </p>
+            {roles.map(role => (
+              <option key={role.id} value={role.id} className="bg-gray-800 text-white">
+                {role.name}
+              </option>
+            ))}
+          </select>
         </div>
 
-        {/* Requisitos de contraseña */}
-        <div className="text-left mb-6 bg-white/10 p-4 rounded-[10px]">
-          <p className="mb-3 text-sm">La contraseña debe contener:</p>
-          <ul className="space-y-1">
-            <li className="text-sm flex items-center">
-              <span className={`mr-2 ${passwordRequirements.minLength ? 'text-[#4CAF50]' : 'text-[#ff6b6b]'}`}>
-                {passwordRequirements.minLength ? '✓' : '✗'}
-              </span>
-              Al menos 8 caracteres
-            </li>
-            <li className="text-sm flex items-center">
-              <span className={`mr-2 ${passwordRequirements.hasUppercase ? 'text-[#4CAF50]' : 'text-[#ff6b6b]'}`}>
-                {passwordRequirements.hasUppercase ? '✓' : '✗'}
-              </span>
-              Al menos una mayúscula
-            </li>
-            <li className="text-sm flex items-center">
-              <span className={`mr-2 ${passwordRequirements.hasNumber ? 'text-[#4CAF50]' : 'text-[#ff6b6b]'}`}>
-                {passwordRequirements.hasNumber ? '✓' : '✗'}
-              </span>
-              Al menos un número
-            </li>
-            <li className="text-sm flex items-center">
-              <span className={`mr-2 ${passwordRequirements.hasSpecialChar ? 'text-[#4CAF50]' : 'text-[#ff6b6b]'}`}>
-                {passwordRequirements.hasSpecialChar ? '✓' : '✗'}
-              </span>
-              Al menos un carácter especial
-            </li>
-          </ul>
-        </div>
-
-        {/* Botón para crear tipo de documento */}
-        <button
-          type="button"
-          onClick={openDocumentTypeModal}
-          className="w-full py-3 px-6 bg-[#2196F3] text-white font-semibold rounded-full 
-                   transition-all duration-300 hover:bg-[#1976D2] hover:-translate-y-0.5 
-                   hover:shadow-[0_5px_15px_rgba(33,150,243,0.4)] flex items-center justify-center gap-3
-                   mb-4"
-        >
-          <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm4 18H6V4h7v5h5v11zm-3-7v1h-4v-1h4zm0-2v1h-4v-1h4z"/>
-          </svg>
-          Crear Tipo de Documento
-        </button>
-
-        {/* Botón para crear rol */}
-        <button
-          type="button"
-          onClick={openRoleModal}
-          className="w-full py-3 px-6 bg-[#8E44AD] text-white font-semibold rounded-full transition-all duration-300 hover:bg-[#7D3C98] hover:-translate-y-0.5 hover:shadow-[0_5px_15px_rgba(142,68,173,0.4)] flex items-center justify-center gap-3 mb-2"
-        >
-          <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a5 5 0 1 1 0 10 5 5 0 0 1 0-10zm-9 18a9 9 0 1 1 18 0H3z"/></svg>
-          Crear Rol
-        </button>
-
-        {/* Botón de registro */}
         <button
           type="submit"
-          disabled={!isFormValid() || loading}
-          className={`w-full py-4 px-6 border-none rounded-full text-white text-lg font-semibold 
-                     transition-all duration-300 flex items-center justify-center gap-3
-                     ${isFormValid() && !loading 
-                       ? 'bg-[#4CAF50] hover:bg-[#45a049] hover:-translate-y-0.5 hover:shadow-[0_5px_15px_rgba(76,175,80,0.4)] opacity-100' 
-                       : 'bg-[#4CAF50] opacity-70 cursor-not-allowed'
-                     }
-                     active:translate-y-0`}
+          disabled={isLoading}
+          className="w-full py-3 px-4 bg-gradient-to-br from-[#4CAF50] to-[#45a049] border-none rounded-full text-white text-sm font-semibold cursor-pointer transition-all duration-300 mb-4 relative overflow-hidden shadow-[0_10px_30px_rgba(76,175,80,0.3)] hover:transform hover:-translate-y-0.5 hover:shadow-[0_15px_40px_rgba(76,175,80,0.4)] active:transform active:translate-y-0 disabled:opacity-50 animate-[fadeInUp_1s_ease-in-out_2.5s_both]"
         >
-          {loading ? (
+          {isLoading ? (
             <>
-              <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-              Registrando...
+              <span className="mr-2">Registrando...</span>
+              <i className="fas fa-spinner animate-spin"></i>
             </>
           ) : (
             <>
-              <span>Registrarse</span>
-              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-              </svg>
+              <span className="mr-2">{isGoogleMode ? 'Completar Registro' : 'Crear Cuenta'}</span>
+              <i className={`${isGoogleMode ? 'fab fa-google' : 'fas fa-user-plus'}`}></i>
             </>
           )}
         </button>
+<<<<<<< HEAD
+      </form>
+
+      {message && (
+        <div className={`my-4 p-2 rounded-lg font-medium text-center transition-all duration-300 ${
+          messageType === 'success' 
+            ? 'bg-[#4CAF50]/20 text-[#4CAF50] border border-[#4CAF50]/30' 
+            : 'bg-red-500/20 text-red-500 border border-red-500/30'
+        }`}>
+          {message}
+        </div>
+      )}
+      
+      <div className="mt-4 text-center animate-[fadeIn_1s_ease-in-out_3s_both]">
+        <span className="text-white/90 text-sm mr-2">¿Ya tienes cuenta?</span>
+        <a href="/login" className="text-[#4CAF50] text-sm font-semibold hover:underline">
+          Inicia Sesión
+        </a>
+      </div>
+=======
 
         {/* Mensaje de respuesta */}
         {message && (
           <p className={`mt-4 text-sm ${messageType === 'error' ? 'text-[#ff6b6b]' : 'text-[#4CAF50]'}`}>
             {message}
           </p>
+        )}
+
+        {docCreateToast && (
+          <p className="mt-2 text-sm text-[#4CAF50]">{docCreateToast}</p>
         )}
 
         {/* Enlace a login */}
@@ -449,23 +357,17 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onBack }) => {
         </div>
       </form>
 
-      {/* Modal para crear tipo de documento */}
-      <DocumentTypeModal
-        isOpen={isDocumentTypeModalOpen}
-        onClose={closeDocumentTypeModal}
-        onSubmit={handleCreateDocumentType}
-        loading={loading}
-      />
-
-      {/* Modal para crear rol */}
-      <RoleModal
-        isOpen={isRoleModalOpen}
-        onClose={closeRoleModal}
-        onSubmit={handleCreateRole}
-        loading={loading}
-      />
+      {showDocModal && (
+        <CreateDocumentTypeModal
+          isOpen={showDocModal}
+          onClose={() => setShowDocModal(false)}
+          onCreated={() => {
+            setDocCreateToast('Tipo de documento creado correctamente.');
+            setTimeout(() => setDocCreateToast(null), 3000);
+          }}
+        />
+      )}
+>>>>>>> e16c912 (conexion api crear documento exitosa)
     </div>
   );
-};
-
-export default RegisterForm;
+}

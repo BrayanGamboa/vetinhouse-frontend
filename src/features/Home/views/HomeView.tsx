@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useHome } from '../hooks/useHome';
+import { useNotify } from '@/core/hooks/useNotify';
 import Loader from '../components/Loader';
 import HomeHeader from '../components/HomeHeader';
 import HeroBanner from '../components/HeroBanner';
@@ -11,6 +12,7 @@ import Footer from '../components/Footer';
 
 export default function HomeView() {
   const { isLoading, quickAccessItems, services, testimonials, handleLogout } = useHome();
+  const notify = useNotify();
   const [showScrollTop, setShowScrollTop] = useState(false);
 
   useEffect(() => {
@@ -145,6 +147,28 @@ export default function HomeView() {
           </section>
 
           <Footer />
+
+          {/* Botón de prueba de notificaciones (temporal) */}
+          <button 
+            onClick={() => {
+              notify.success('¡Prueba Exitosa!', 'Las notificaciones funcionan correctamente');
+            }}
+            className="fixed bottom-8 left-8 w-12 h-12 bg-blue-500 text-white rounded-full flex items-center justify-center shadow-lg transition-all duration-300 hover:bg-blue-600 hover:-translate-y-1 hover:scale-110 z-40"
+            title="Probar notificación de éxito"
+          >
+            <i className="fas fa-bell"></i>
+          </button>
+
+          {/* Botón de prueba de error (temporal) */}
+          <button 
+            onClick={() => {
+              notify.error('Error de Prueba', 'Esta es una notificación de error de prueba');
+            }}
+            className="fixed bottom-24 left-8 w-12 h-12 bg-red-500 text-white rounded-full flex items-center justify-center shadow-lg transition-all duration-300 hover:bg-red-600 hover:-translate-y-1 hover:scale-110 z-40"
+            title="Probar notificación de error"
+          >
+            <i className="fas fa-exclamation-triangle"></i>
+          </button>
 
           {/* Botón scroll to top mejorado */}
           <button 

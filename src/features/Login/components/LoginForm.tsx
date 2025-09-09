@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useLogin } from '../hooks/useLogin';
+import { useNotify } from '@/core/hooks/useNotify';
 import type { LoginCredentials } from '../types/login.types';
 import SuccessAnimation from './SuccessAnimation';
 import { useNavigate } from 'react-router';
@@ -10,6 +11,7 @@ interface LoginFormProps {
 
 export default function LoginForm({ onBack }: LoginFormProps) {
   const navigate = useNavigate();
+  const notify = useNotify();
   const [credentials, setCredentials] = useState<LoginCredentials>({
     email: '',
     password: ''
@@ -24,21 +26,21 @@ export default function LoginForm({ onBack }: LoginFormProps) {
     e.preventDefault();
     
     if (!credentials.email || !credentials.password) {
-      showMessage('Por favor, completa todos los campos', 'error');
+      notify.error('Campos Incompletos', 'Por favor, completa todos los campos');
       return;
     }
     
     const result = await login(credentials);
     
     if (result.success) {
-      showMessage('¡Inicio de sesión exitoso!', 'success');
+      notify.loginSuccess(result.user?.name || 'Usuario');
       setTimeout(() => {
         setShowSuccess(true);
         // Redirigir tras animación
         setTimeout(() => navigate('/home'), 1500);
       }, 600);
     } else {
-      showMessage(result.message, 'error');
+      notify.loginError(result.message);
       // Efecto shake
       const container = document.getElementById('loginContainer');
       if (container) {
@@ -48,15 +50,6 @@ export default function LoginForm({ onBack }: LoginFormProps) {
         }, 500);
       }
     }
-  };
-
-  const showMessage = (msg: string, type: 'success' | 'error') => {
-    setMessage(msg);
-    setMessageType(type);
-    setTimeout(() => {
-      setMessage('');
-      setMessageType('');
-    }, 5000);
   };
 
   if (showSuccess) {

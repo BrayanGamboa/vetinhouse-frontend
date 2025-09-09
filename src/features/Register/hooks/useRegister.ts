@@ -325,8 +325,8 @@ export const useRegister = () => {
     register,
     validatePassword,
     togglePasswordVisibility,
-    createDocumentType
-  ,createRole,
+    createDocumentType,
+    createRole,
     fetchDocumentTypes,
     fetchRoles
   };
