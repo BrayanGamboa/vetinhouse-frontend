@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRegister } from '../hooks/useRegister';
 import type { RegisterCredentials, DocumentType } from '../types/register.types';
 import DocumentTypeModal from './DocumentTypeModal';
@@ -15,8 +15,8 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onBack }) => {
     lastName: '',
     email: '',
     password: '',
-    roleId: 1,
-    documentTypeId: 1,
+  roleId: 0,
+  documentTypeId: 0,
   });
   const [isDocumentTypeModalOpen, setIsDocumentTypeModalOpen] = useState(false);
   const [isRoleModalOpen, setIsRoleModalOpen] = useState(false);
@@ -32,8 +32,33 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onBack }) => {
     validatePassword,
     togglePasswordVisibility,
   createDocumentType,
-  createRole
+  createRole,
+  fetchDocumentTypes,
+  fetchRoles
   } = useRegister();
+
+  const [documentTypes, setDocumentTypes] = useState<Array<{ id: number; name: string; description: string }>>([]);
+  const [roles, setRoles] = useState<Array<{ id: number; name: string; description: string }>>([]);
+
+  useEffect(() => {
+    // Cargar combos al montar
+    const loadData = async () => {
+      const [dt, rl] = await Promise.all([
+        fetchDocumentTypes(),
+        fetchRoles(),
+      ]);
+      setDocumentTypes(dt);
+      setRoles(rl);
+
+      // Si hay datos, prefijar el primer valor si no hay selección
+      setCredentials(prev => ({
+        ...prev,
+        documentTypeId: prev.documentTypeId || (dt[0]?.id ?? prev.documentTypeId),
+        roleId: prev.roleId || (rl[0]?.id ?? prev.roleId),
+      }));
+    };
+    loadData();
+  }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -65,7 +90,16 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onBack }) => {
   };
 
   const handleCreateDocumentType = async (documentType: DocumentType) => {
-    await createDocumentType(documentType);
+    const res = await createDocumentType(documentType);
+    if (res.success && res.documentType) {
+      // Actualizar lista y seleccionar el nuevo
+      setDocumentTypes(prev => {
+        const next = [...prev.filter(d => d.id !== res.documentType!.id), res.documentType!].sort((a,b)=>a.id-b.id);
+        return next;
+      });
+      setCredentials(prev => ({ ...prev, documentTypeId: res.documentType!.id }));
+      closeDocumentTypeModal();
+    }
   };
 
   const openDocumentTypeModal = () => {
@@ -77,7 +111,15 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onBack }) => {
   };
 
   const handleCreateRole = async (role: { id: number; name: string; description: string }) => {
-    await createRole(role);
+    const res = await createRole(role);
+    if (res.success && res.role) {
+      setRoles(prev => {
+        const next = [...prev.filter(r => r.id !== res.role!.id), res.role!].sort((a,b)=>a.id-b.id);
+        return next;
+      });
+      setCredentials(prev => ({ ...prev, roleId: res.role!.id }));
+      closeRoleModal();
+    }
   };
 
   const openRoleModal = () => setIsRoleModalOpen(true);
@@ -232,46 +274,54 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onBack }) => {
           </button>
         </div>
 
-        {/* Rol (numérico) */}
+        {/* Rol (select) */}
         <div className="relative">
           <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-[#5FD068] text-xl">
             <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
               <path d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z"/>
             </svg>
           </div>
-          <input
-            type="number"
+          <select
             name="roleId"
             value={credentials.roleId}
-            onChange={handleInputChange}
-            placeholder="Role ID"
-            min={1}
-            className="w-full py-4 px-12 bg-white/10 border-none rounded-full text-white text-base 
-                     transition-all duration-300 placeholder-white/70
+            onChange={(e) => setCredentials(prev => ({ ...prev, roleId: Number(e.target.value) }))}
+            className="w-full py-4 pl-12 pr-6 bg-white/10 border-none rounded-full text-white text-base 
+                     transition-all duration-300 placeholder-white/70 appearance-none
                      focus:outline-none focus:bg-white/20 focus:shadow-[0_0_15px_rgba(95,208,104,0.3)]"
             required
-          />
+          >
+            {roles.length === 0 && <option value="">Cargando roles...</option>}
+            {roles.map(r => (
+              <option key={r.id} value={r.id} className="bg-[#1f2937] text-white">
+                {r.name} — {r.description}
+              </option>
+            ))}
+          </select>
         </div>
 
-        {/* Tipo de documento (numérico) */}
+        {/* Tipo de documento (select) */}
         <div className="relative">
           <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-[#5FD068] text-xl">
             <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
               <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm4 18H6V4h7v5h5v11z"/>
             </svg>
           </div>
-          <input
-            type="number"
+          <select
             name="documentTypeId"
             value={credentials.documentTypeId}
-            onChange={handleInputChange}
-            placeholder="Tipo de documento ID"
-            min={1}
-            className="w-full py-4 px-12 bg-white/10 border-none rounded-full text-white text-base 
-                     transition-all duration-300 placeholder-white/70
+            onChange={(e) => setCredentials(prev => ({ ...prev, documentTypeId: Number(e.target.value) }))}
+            className="w-full py-4 pl-12 pr-6 bg-white/10 border-none rounded-full text-white text-base 
+                     transition-all duration-300 placeholder-white/70 appearance-none
                      focus:outline-none focus:bg-white/20 focus:shadow-[0_0_15px_rgba(95,208,104,0.3)]"
             required
-          />
+          >
+            {documentTypes.length === 0 && <option value="">Cargando tipos de documento...</option>}
+            {documentTypes.map(dt => (
+              <option key={dt.id} value={dt.id} className="bg-[#1f2937] text-white">
+                {dt.name} — {dt.description}
+              </option>
+            ))}
+          </select>
         </div>
 
         {/* Indicador de fuerza de contraseña */}

@@ -263,6 +263,58 @@ export const useRegister = () => {
     }
   };
 
+  // Traer Tipos de Documento existentes
+  const fetchDocumentTypes = async (): Promise<DocumentType[]> => {
+    try {
+      const resp = await fetch('/api/document_type', {
+        method: 'GET',
+        credentials: 'omit',
+      });
+      if (!resp.ok) {
+        const err = await resp.text().catch(() => '');
+        throw new Error(`Error ${resp.status}: ${resp.statusText}. ${err}`);
+      }
+      const data = await resp.json();
+      const arr = Array.isArray(data)
+        ? data
+        : Array.isArray((data as any)?.data)
+          ? (data as any).data
+          : Array.isArray((data as any)?.results)
+            ? (data as any).results
+            : [];
+      return arr as DocumentType[];
+    } catch (e) {
+      console.error('Error al obtener tipos de documento', e);
+      return [];
+    }
+  };
+
+  // Traer Roles existentes
+  const fetchRoles = async (): Promise<RoleUser[]> => {
+    try {
+      const resp = await fetch('/api/role_user', {
+        method: 'GET',
+        credentials: 'omit',
+      });
+      if (!resp.ok) {
+        const err = await resp.text().catch(() => '');
+        throw new Error(`Error ${resp.status}: ${resp.statusText}. ${err}`);
+      }
+      const data = await resp.json();
+      const arr = Array.isArray(data)
+        ? data
+        : Array.isArray((data as any)?.data)
+          ? (data as any).data
+          : Array.isArray((data as any)?.results)
+            ? (data as any).results
+            : [];
+      return arr as RoleUser[];
+    } catch (e) {
+      console.error('Error al obtener roles', e);
+      return [];
+    }
+  };
+
   return {
     loading,
     message,
@@ -274,6 +326,8 @@ export const useRegister = () => {
     validatePassword,
     togglePasswordVisibility,
     createDocumentType
-  ,createRole
+  ,createRole,
+    fetchDocumentTypes,
+    fetchRoles
   };
 };
