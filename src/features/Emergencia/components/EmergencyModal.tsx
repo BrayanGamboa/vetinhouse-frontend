@@ -42,8 +42,8 @@ export default function EmergencyModal({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className={`bg-white rounded-2xl w-full max-w-lg border-4 ${getSeverityClass()}`}>
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center modal-overlay p-4 z-[9999]">
+      <div className={`bg-white rounded-2xl w-full max-w-lg border-4 ${getSeverityClass()} emergency-modal`}>
         {/* Header */}
         <div className="bg-red-500 text-white p-6 rounded-t-2xl">
           <h2 className="text-2xl font-bold flex items-center gap-3">

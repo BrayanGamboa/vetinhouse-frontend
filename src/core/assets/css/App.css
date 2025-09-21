@@ -2,7 +2,102 @@
 @import "./login-animations.css";
 @import "./login-transitions.css";
 
+/* Navigation buttons */
+.nav-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #6b7280;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
 
+/* Animaciones de modales mejoradas */
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(100px) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes slideInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-100px) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-100px) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(100px) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+@keyframes zoomIn {
+  from {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.nav-btn:hover {
+  background-color: #f0f9ff;
+  color: #15803d;
+}
+
+.nav-btn.active {
+  background-color: #22c55e;
+  color: white;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.nav-btn.logout-btn:hover {
+  background-color: #fef2f2;
+  color: #dc2626;
+}
 
 /* Modal animations */
 @keyframes scaleIn {
@@ -88,6 +183,45 @@
   }
 }
 
+/* Floating animations for emergency view */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  25% {
+    transform: translateY(-10px) rotate(5deg);
+  }
+  50% {
+    transform: translateY(-5px) rotate(-5deg);
+  }
+  75% {
+    transform: translateY(-15px) rotate(3deg);
+  }
+}
+
+/* Progress bar animation */
+@keyframes progressBar {
+  from { 
+    width: 100%; 
+  }
+  to { 
+    width: 0%; 
+  }
+}
+
+/* Z-index hierarchy for emergency components */
+.modal-overlay {
+  z-index: 9999 !important;
+}
+
+.emergency-alert {
+  z-index: 10000 !important;
+}
+
+.emergency-modal {
+  z-index: 9999 !important;
+}
+
 /* Custom scrollbar */
 .custom-scrollbar::-webkit-scrollbar {
   width: 6px;
@@ -105,4 +239,577 @@
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 255, 255, 0.5);
+}
+
+/* Efectos mejorados para el componente EmergencyStatus */
+@keyframes shadowPulse {
+  0%, 100% { 
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  }
+  50% { 
+    box-shadow: 0 35px 60px -12px rgba(0, 0, 0, 0.4), 
+                0 0 50px rgba(255, 255, 255, 0.1);
+  }
+}
+
+.shadow-3xl {
+  box-shadow: 0 35px 70px -12px rgba(0, 0, 0, 0.25);
+}
+
+.animate-shadowPulse {
+  animation: shadowPulse 2s ease-in-out infinite;
+}
+
+/* Efectos de partículas y elementos flotantes */
+@keyframes floatSlow {
+  0%, 100% { 
+    transform: translateY(0px) translateX(0px) rotate(0deg);
+  }
+  25% { 
+    transform: translateY(-15px) translateX(8px) rotate(3deg);
+  }
+  50% { 
+    transform: translateY(-5px) translateX(-5px) rotate(-2deg);
+  }
+  75% { 
+    transform: translateY(10px) translateX(-8px) rotate(2deg);
+  }
+}
+
+.animate-float-slow {
+  animation: floatSlow 6s ease-in-out infinite;
+}
+
+@keyframes floatMedium {
+  0%, 100% { 
+    transform: translateY(0px);
+  }
+  50% { 
+    transform: translateY(-20px);
+  }
+}
+
+.animate-float-medium {
+  animation: floatMedium 4s ease-in-out infinite;
+}
+
+/* Efectos de brillo y shimmer */
+@keyframes shimmer {
+  0% { 
+    transform: translateX(-100%) skew(-15deg);
+  }
+  100% { 
+    transform: translateX(200%) skew(-15deg);
+  }
+}
+
+.shimmer {
+  position: relative;
+  overflow: hidden;
+}
+
+.shimmer::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, 
+    transparent, 
+    rgba(255,255,255,0.4), 
+    transparent
+  );
+  transform: translateX(-100%) skew(-15deg);
+  animation: shimmer 3s infinite;
+}
+
+/* Animaciones de entrada mejoradas */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(40px) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.animate-fadeInUp {
+  animation: fadeInUp 0.8s ease-out;
+}
+
+@keyframes scaleInRotate {
+  from {
+    opacity: 0;
+    transform: scale(0.8) rotate(-10deg);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+.animate-scaleInRotate {
+  animation: scaleInRotate 0.6s ease-out;
+}
+
+/* Efectos de hover para botones mejorados */
+.btn-hover-effect {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-hover-effect::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 70%);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: width 0.8s ease, height 0.8s ease;
+  z-index: 0;
+}
+
+.btn-hover-effect:hover::before {
+  width: 400px;
+  height: 400px;
+}
+
+.btn-hover-effect > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Efectos de glassmorphism premium */
+.glass-effect {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(15px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 
+    0 8px 32px 0 rgba(31, 38, 135, 0.37),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.glass-effect-strong {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(25px) saturate(1.5);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 
+    0 12px 40px 0 rgba(31, 38, 135, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+}
+
+/* Animaciones específicas para elementos de emergencia */
+@keyframes emergencyPulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 20px rgba(239, 68, 68, 0.3);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 0 30px rgba(239, 68, 68, 0.6);
+  }
+}
+
+.animate-emergency-pulse {
+  animation: emergencyPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes statusGlow {
+  0%, 100% {
+    box-shadow: 
+      0 0 20px rgba(34, 197, 94, 0.3),
+      0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  }
+  50% {
+    box-shadow: 
+      0 0 40px rgba(34, 197, 94, 0.6),
+      0 35px 60px -12px rgba(0, 0, 0, 0.4);
+  }
+}
+
+.animate-status-glow {
+  animation: statusGlow 2s ease-in-out infinite;
+}
+
+/* Mejoras para transiciones suaves */
+.smooth-transition {
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.smooth-transform {
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Efectos de profundidad */
+.depth-1 {
+  box-shadow: 
+    0 1px 3px rgba(0, 0, 0, 0.12), 
+    0 1px 2px rgba(0, 0, 0, 0.24);
+}
+
+.depth-2 {
+  box-shadow: 
+    0 3px 6px rgba(0, 0, 0, 0.16), 
+    0 3px 6px rgba(0, 0, 0, 0.23);
+}
+
+.depth-3 {
+  box-shadow: 
+    0 10px 20px rgba(0, 0, 0, 0.19), 
+    0 6px 6px rgba(0, 0, 0, 0.23);
+}
+
+.depth-4 {
+  box-shadow: 
+    0 14px 28px rgba(0, 0, 0, 0.25), 
+    0 10px 10px rgba(0, 0, 0, 0.22);
+}
+
+.depth-5 {
+  box-shadow: 
+    0 19px 38px rgba(0, 0, 0, 0.30), 
+    0 15px 12px rgba(0, 0, 0, 0.22);
+}
+
+/* Bordes mejorados para modales */
+.border-3 {
+  border-width: 3px;
+}
+
+/* Efectos de rotación suave */
+@keyframes rotateIn {
+  from {
+    opacity: 0;
+    transform: rotate(-200deg);
+  }
+  to {
+    opacity: 1;
+    transform: rotate(0deg);
+  }
+}
+
+.animate-rotateIn {
+  animation: rotateIn 0.6s ease-out;
+}
+
+/* Hover effects para botones de emergencia */
+.emergency-btn-glow {
+  transition: all 0.3s ease;
+}
+
+.emergency-btn-glow:hover {
+  box-shadow: 
+    0 0 20px rgba(239, 68, 68, 0.4),
+    0 0 40px rgba(239, 68, 68, 0.2),
+    0 0 60px rgba(239, 68, 68, 0.1);
+}
+
+.success-btn-glow:hover {
+  box-shadow: 
+    0 0 20px rgba(34, 197, 94, 0.4),
+    0 0 40px rgba(34, 197, 94, 0.2),
+    0 0 60px rgba(34, 197, 94, 0.1);
+}
+
+.info-btn-glow:hover {
+  box-shadow: 
+    0 0 20px rgba(59, 130, 246, 0.4),
+    0 0 40px rgba(59, 130, 246, 0.2),
+    0 0 60px rgba(59, 130, 246, 0.1);
+}
+
+/* Mejoras para elementos emergencia */
+.emergency-pulsing {
+  animation: emergency-pulse 1s ease-in-out infinite alternate;
+}
+
+@keyframes emergency-pulse {
+  from {
+    box-shadow: 0 0 5px rgba(239, 68, 68, 0.4);
+  }
+  to {
+    box-shadow: 0 0 20px rgba(239, 68, 68, 0.8);
+  }
+}
+
+/* Animaciones específicas para llamadas telefónicas */
+@keyframes callRing {
+  0%, 100% {
+    transform: scale(1) rotate(0deg);
+  }
+  25% {
+    transform: scale(1.1) rotate(-5deg);
+  }
+  75% {
+    transform: scale(1.1) rotate(5deg);
+  }
+}
+
+.animate-call-ring {
+  animation: callRing 0.8s ease-in-out infinite;
+}
+
+@keyframes callPulse {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(2);
+    opacity: 0;
+  }
+}
+
+.animate-call-pulse {
+  animation: callPulse 1.5s ease-out infinite;
+}
+
+/* Efectos de audio visual */
+@keyframes audioWave {
+  0%, 100% {
+    height: 5px;
+  }
+  50% {
+    height: 20px;
+  }
+}
+
+.audio-wave {
+  animation: audioWave 0.5s ease-in-out infinite;
+}
+
+.audio-wave:nth-child(2) { animation-delay: 0.1s; }
+.audio-wave:nth-child(3) { animation-delay: 0.2s; }
+.audio-wave:nth-child(4) { animation-delay: 0.3s; }
+.audio-wave:nth-child(5) { animation-delay: 0.4s; }
+
+/* Efectos de conexión */
+@keyframes connectionPulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
+  }
+  50% {
+    box-shadow: 0 0 0 20px rgba(34, 197, 94, 0);
+  }
+}
+
+.animate-connection-pulse {
+  animation: connectionPulse 2s infinite;
+}
+
+/* Efectos para botones de llamada */
+.call-button-glow {
+  transition: all 0.3s ease;
+}
+
+.call-button-glow:hover {
+  box-shadow: 
+    0 0 20px rgba(34, 197, 94, 0.4),
+    0 0 40px rgba(34, 197, 94, 0.2),
+    0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+/* Efectos de vibración para llamadas entrantes */
+@keyframes vibrate {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-2px); }
+  75% { transform: translateX(2px); }
+}
+
+.animate-vibrate {
+  animation: vibrate 0.1s ease-in-out infinite;
+}
+
+/* Efectos de gradiente animado para status */
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.animate-gradient {
+  background-size: 200% 200%;
+  animation: gradientShift 3s ease infinite;
+}
+
+/* Animaciones específicas para chat */
+@keyframes messageSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.animate-messageSlideIn {
+  animation: messageSlideIn 0.3s ease-out;
+}
+
+@keyframes typingDots {
+  0%, 60%, 100% {
+    transform: translateY(0);
+  }
+  30% {
+    transform: translateY(-10px);
+  }
+}
+
+.animate-typing-dots {
+  animation: typingDots 1.4s ease-in-out infinite;
+}
+
+.animate-typing-dots:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.animate-typing-dots:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+/* Efectos para burbujas de chat */
+.chat-bubble-sent {
+  background: linear-gradient(135deg, #10b981, #059669);
+  position: relative;
+  overflow: hidden;
+}
+
+.chat-bubble-sent::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+  transition: left 0.5s;
+}
+
+.chat-bubble-sent:hover::before {
+  left: 100%;
+}
+
+.chat-bubble-received {
+  background: linear-gradient(135deg, #ffffff, #f9fafb);
+  border: 1px solid #e5e7eb;
+}
+
+/* Efectos de escritura */
+@keyframes recordingPulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.1);
+  }
+}
+
+.animate-recording-pulse {
+  animation: recordingPulse 1s ease-in-out infinite;
+}
+
+/* Scrollbar personalizado para chat */
+.chat-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.chat-scrollbar::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 2px;
+}
+
+.chat-scrollbar::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 2px;
+}
+
+.chat-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Efectos para botones de respuesta rápida */
+.quick-reply-btn {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.quick-reply-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.2);
+}
+
+/* Efectos de emoji */
+.emoji-btn {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.emoji-btn:hover {
+  transform: scale(1.3) rotate(5deg);
+}
+
+/* Animación para indicadores de estado de mensaje */
+@keyframes messageStatusFade {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-message-status {
+  animation: messageStatusFade 0.3s ease-out;
+}
+
+/* Efectos de focus mejorados */
+.chat-input:focus {
+  box-shadow: 
+    0 0 0 3px rgba(34, 197, 94, 0.1),
+    0 4px 12px rgba(0, 0, 0, 0.05);
+  transform: translateY(-1px);
+}
+
+/* Animaciones de herramientas de chat */
+.chat-tool-active {
+  background: linear-gradient(135deg, #dcfce7, #bbf7d0);
+  color: #059669;
+  transform: scale(1.1);
+}
+
+/* Efectos de onda para grabación */
+@keyframes audioWaveChat {
+  0%, 100% {
+    height: 4px;
+    opacity: 0.5;
+  }
+  50% {
+    height: 16px;
+    opacity: 1;
+  }
+}
+
+.audio-wave-chat {
+  animation: audioWaveChat 0.8s ease-in-out infinite;
+  background: linear-gradient(to top, #ef4444, #f87171);
+}
+
+.audio-wave-chat:nth-child(odd) {
+  animation-delay: 0.1s;
+}
+
+.audio-wave-chat:nth-child(even) {
+  animation-delay: 0.3s;
 }

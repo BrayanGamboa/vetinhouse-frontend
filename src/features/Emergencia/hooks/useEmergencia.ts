@@ -175,13 +175,18 @@ export const useEmergencia = () => {
     
     setChatMessages(prev => [...prev, newMessage]);
     
-    // Simular respuesta automática
+    // Simular respuesta automática con delay más realista
+    const responseDelay = Math.random() * 2000 + 2500; // 2.5-4.5 segundos para simular el typing
     setTimeout(() => {
       const responses = [
-        "Entendido, gracias por el mensaje",
-        "Todo está bien por aquí",
-        "Max está muy feliz",
-        "Perfecto, seguimos con el paseo"
+        "Entendido, gracias por el mensaje 👍",
+        "Todo está bien por aquí! Max está genial 🐕",
+        "Max está muy feliz corriendo en el parque ❤️",
+        "Perfecto, seguimos con el paseo 🚶‍♂️",
+        "Recibido! Te mantendré informado 📱",
+        "Max dice hola! 🐾 Todo va excelente",
+        "Estamos en el área verde, todo bajo control 🌳",
+        "¡Max ha hecho muchos amigos aquí! 🐕‍🦺"
       ];
       const response = responses[Math.floor(Math.random() * responses.length)];
       
@@ -190,7 +195,7 @@ export const useEmergencia = () => {
         content: response,
         time: new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })
       }]);
-    }, Math.random() * 3000 + 1000);
+    }, responseDelay);
   };
 
   const resetUnreadCount = () => {
