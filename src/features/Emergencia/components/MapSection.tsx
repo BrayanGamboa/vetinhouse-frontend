@@ -135,7 +135,7 @@ export default function MapSection({ isEmergencyActive }: MapSectionProps) {
     }, 200); // Actualización cada 200ms
 
     return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current);
+      if (intervalRef.current) clearInterval(intervalRef.current as any);
     };
   }, []);
 

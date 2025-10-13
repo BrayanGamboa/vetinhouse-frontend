@@ -8,7 +8,9 @@ export interface Product {
   rating: number;
   reviews: number;
   inStock: boolean;
+  stock?: number;
   brand: string;
+  weight?: string;
 }
 
 export interface CartItem {
@@ -28,4 +30,16 @@ export interface ShippingInfo {
   city: string;
   phone: string;
   notes?: string;
+  deliveryType?: 'standard' | 'express';
+}
+
+export interface Order {
+  id: string;
+  items: CartItem[];
+  totalPrice: number;
+  shippingCost: number;
+  shippingInfo: ShippingInfo;
+  paymentMethod: string;
+  status: 'pending' | 'processing' | 'shipped' | 'delivered';
+  date: string;
 }

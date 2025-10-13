@@ -6,8 +6,10 @@ import { HomeRoutes } from "@features/Home/routes";
 import { EmergenciaRoutes } from "@features/Emergencia/routes";
 import PetShopRoutes from "@features/PetShop/routes";
 import CitaRoutes from "@features/Cita/routes";
+import { equipoRoutes } from "@features/Equipo/routes";
+import { gpsRoutes } from "@features/GPS/routes";
 
-export const appRoutes = [...WelcomeRoutes, ...LoginRoutes, ...registerRoutes, ...HomeRoutes, ...EmergenciaRoutes, ...PetShopRoutes, ...CitaRoutes];
+export const appRoutes = [...WelcomeRoutes, ...LoginRoutes, ...registerRoutes, ...HomeRoutes, ...EmergenciaRoutes, ...PetShopRoutes, ...CitaRoutes, ...equipoRoutes, ...gpsRoutes];
 
 export const AppRouter = () => {
   const element = useRoutes(appRoutes);

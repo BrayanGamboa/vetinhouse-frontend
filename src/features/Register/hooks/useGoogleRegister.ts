@@ -1,10 +1,9 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { loadScript } from '../../../core/utils/loadScript';
 import { decodeJwt, type GoogleJwtPayload } from '../../../core/utils/jwt';
 
 export const useGoogleRegister = () => {
   const [googleReady, setGoogleReady] = useState(false);
-  const googleInitRef = useRef(false);
 
   useEffect(() => {
     let mounted = true;

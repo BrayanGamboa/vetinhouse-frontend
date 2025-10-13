@@ -17,8 +17,8 @@ export default function LoginForm({ onBack }: LoginFormProps) {
     password: ''
   });
   const [showSuccess, setShowSuccess] = useState(false);
-  const [message, setMessage] = useState('');
-  const [messageType, setMessageType] = useState<'success' | 'error' | ''>('');
+  const [_message, _setMessage] = useState('');
+  const [_messageType, _setMessageType] = useState<'success' | 'error' | ''>('');
   
   const { login, isLoading, showPassword, togglePasswordVisibility } = useLogin();
 
@@ -130,16 +130,6 @@ export default function LoginForm({ onBack }: LoginFormProps) {
           )}
         </button>
       </form>
-
-      {message && (
-        <div className={`my-4 p-2 rounded-lg font-medium text-center transition-all duration-300 ${
-          messageType === 'success' 
-            ? 'bg-[#4CAF50]/20 text-[#4CAF50] border border-[#4CAF50]/30' 
-            : 'bg-red-500/20 text-red-500 border border-red-500/30'
-        }`}>
-          {message}
-        </div>
-      )}
 
       <div className="mt-6 text-center w-full animate-[fadeIn_1s_ease-in-out_2s_both]">
         <a href="#" className="inline-block text-white no-underline text-sm font-semibold py-3 px-5 rounded-[25px] bg-[#4CAF50]/25 border-2 border-[#4CAF50] transition-all duration-300 mb-5 backdrop-blur-[10px] text-shadow-[0_1px_3px_rgba(0,0,0,0.5)] shadow-[0_4px_15px_rgba(76,175,80,0.3)] hover:bg-[#4CAF50]/40 hover:transform hover:-translate-y-0.5 hover:shadow-[0_6px_20px_rgba(76,175,80,0.4)]">

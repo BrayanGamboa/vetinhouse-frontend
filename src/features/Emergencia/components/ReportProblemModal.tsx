@@ -65,12 +65,12 @@ export default function ReportProblemModal({ isOpen, onClose, onReport }: Report
 
   if (!isOpen) return null;
 
-  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setPhoto(file);
-    }
-  };
+  // const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   const file = e.target.files?.[0];
+  //   if (file) {
+  //     setPhoto(file);
+  //   }
+  // };
 
   const handleSubmit = async () => {
     if (!selectedType || !description.trim()) return;

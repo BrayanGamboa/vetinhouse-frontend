@@ -76,7 +76,7 @@ export default function EmergenciaView() {
     setShowReportModal(true);
   };
 
-  const handleReportEmergency = (type: string, description: string, priority: 'low' | 'medium' | 'high') => {
+  const handleReportEmergency = (_type: string, _description: string, _priority: 'low' | 'medium' | 'high') => {
     // Simulación de envío exitoso
     showAlert(
       'success',

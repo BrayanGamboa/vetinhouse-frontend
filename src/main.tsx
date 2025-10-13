@@ -5,6 +5,7 @@ import "@/core/assets/css/App.css";
 import "@/core/assets/css/register-animations.css";
 import "@/core/assets/css/panel-animations.css";
 import "@/core/assets/css/notifications.css";
+import "@/core/assets/css/cita-animations.css";
 import { AppRouter } from "./router";
 import { BrowserRouter } from "react-router";
 import { NotificationProvider } from "@/core/components/NotificationContext";

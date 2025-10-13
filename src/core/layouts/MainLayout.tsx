@@ -118,8 +118,8 @@ export default function MainLayout({ children, title, showBackgroundEffects = tr
               </li>
               <li>
                 <Link 
-                  to="/consultacita" 
-                  className={`nav-btn ${isActiveLink('/consultacita') ? 'active' : ''}`}
+                  to="/consultar-cita" 
+                  className={`nav-btn ${isActiveLink('/consultar-cita') ? 'active' : ''}`}
                 >
                   <i className="fas fa-calendar-check"></i> Consulta Cita
                 </Link>
@@ -130,6 +130,14 @@ export default function MainLayout({ children, title, showBackgroundEffects = tr
                   className={`nav-btn ${isActiveLink('/cita') ? 'active' : ''}`}
                 >
                   <i className="fas fa-calendar-alt"></i> Agendar Cita
+                </Link>
+              </li>
+              <li>
+                <Link 
+                  to="/equipo" 
+                  className={`nav-btn ${isActiveLink('/equipo') ? 'active' : ''}`}
+                >
+                  <i className="fas fa-users"></i> Nuestro Equipo
                 </Link>
               </li>
               <li>
@@ -195,9 +203,9 @@ export default function MainLayout({ children, title, showBackgroundEffects = tr
           </li>
           <li>
             <Link 
-              to="/consultacita" 
+              to="/consultar-cita" 
               className={`flex items-center gap-2 font-medium transition-colors duration-200 ${
-                isActiveLink('/consultacita') ? 'text-green-600' : 'text-green-500 hover:text-green-600'
+                isActiveLink('/consultar-cita') ? 'text-green-600' : 'text-green-500 hover:text-green-600'
               }`}
             >
               <i className="fas fa-calendar-check"></i> Consulta Cita
@@ -211,6 +219,16 @@ export default function MainLayout({ children, title, showBackgroundEffects = tr
               }`}
             >
               <i className="fas fa-calendar-alt"></i> Agendar Cita
+            </Link>
+          </li>
+          <li>
+            <Link 
+              to="/equipo" 
+              className={`flex items-center gap-2 font-medium transition-colors duration-200 ${
+                isActiveLink('/equipo') ? 'text-green-600' : 'text-green-500 hover:text-green-600'
+              }`}
+            >
+              <i className="fas fa-users"></i> Nuestro Equipo
             </Link>
           </li>
           <li>

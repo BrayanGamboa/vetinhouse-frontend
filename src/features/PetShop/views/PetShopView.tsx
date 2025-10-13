@@ -12,11 +12,18 @@ export default function PetShopView() {
     setSelectedCategory,
     searchTerm,
     setSearchTerm,
+    priceRange,
+    setPriceRange,
+    sortBy,
+    setSortBy,
+    onlyInStock,
+    setOnlyInStock,
     paymentMethods,
     addToCart,
     removeFromCart,
     updateQuantity,
     getTotalPrice,
+    getShippingCost,
     getTotalItems,
     clearCart
   } = usePetShop();
@@ -130,6 +137,64 @@ export default function PetShopView() {
                 </div>
               </div>
             </div>
+
+            {/* Filtros adicionales */}
+            <div className="mt-6 grid md:grid-cols-3 gap-4">
+              {/* Ordenar por */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <i className="fas fa-sort mr-2 text-green-600"></i>
+                  Ordenar por
+                </label>
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
+                >
+                  <option value="featured">Destacados</option>
+                  <option value="price-asc">Precio: Menor a Mayor</option>
+                  <option value="price-desc">Precio: Mayor a Menor</option>
+                  <option value="rating">Mejor Calificación</option>
+                  <option value="name">Nombre A-Z</option>
+                </select>
+              </div>
+
+              {/* Rango de precio */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <i className="fas fa-dollar-sign mr-2 text-green-600"></i>
+                  Rango de precio: ${priceRange[0]} - ${priceRange[1]}
+                </label>
+                <div className="flex items-center gap-3">
+                  <input
+                    type="range"
+                    min="0"
+                    max="100"
+                    step="5"
+                    value={priceRange[1]}
+                    onChange={(e) => setPriceRange([priceRange[0], parseInt(e.target.value)])}
+                    className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-green-600"
+                  />
+                </div>
+              </div>
+
+              {/* Solo disponibles */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <i className="fas fa-filter mr-2 text-green-600"></i>
+                  Disponibilidad
+                </label>
+                <label className="flex items-center gap-2 px-4 py-2 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-green-500 transition-colors">
+                  <input
+                    type="checkbox"
+                    checked={onlyInStock}
+                    onChange={(e) => setOnlyInStock(e.target.checked)}
+                    className="w-5 h-5 text-green-600 bg-gray-100 border-gray-300 rounded focus:ring-green-500 focus:ring-2"
+                  />
+                  <span className="text-sm font-medium text-gray-700">Solo productos disponibles</span>
+                </label>
+              </div>
+            </div>
             
             {/* Resultados */}
             <div className="mt-4 pt-4 border-t border-gray-100 flex items-center justify-between text-sm text-gray-600">
@@ -205,6 +270,7 @@ export default function PetShopView() {
       <ShoppingCart
         cart={cart}
         totalPrice={getTotalPrice()}
+        shippingCost={getShippingCost()}
         totalItems={getTotalItems()}
         paymentMethods={paymentMethods}
         onUpdateQuantity={updateQuantity}

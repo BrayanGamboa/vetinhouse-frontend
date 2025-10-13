@@ -24,8 +24,9 @@ export default function HomeHeader({ onLogout }: HomeHeaderProps) {
           <nav className="hidden lg:flex">
             <ul className="flex gap-2 flex-wrap justify-end">
               <li><Link to="/home" className="nav-btn active"><i className="fas fa-home"></i> Inicio</Link></li>
-              <li><Link to="/consultacita" className="nav-btn"><i className="fas fa-calendar-check"></i> Consulta Cita</Link></li>
+              <li><Link to="/consultar-cita" className="nav-btn"><i className="fas fa-calendar-check"></i> Consulta Cita</Link></li>
               <li><Link to="/cita" className="nav-btn"><i className="fas fa-calendar-alt"></i> Agendar Cita</Link></li>
+              <li><Link to="/equipo" className="nav-btn"><i className="fas fa-users"></i> Nuestro Equipo</Link></li>
               <li><Link to="/petshop" className="nav-btn"><i className="fas fa-shopping-cart"></i> PetShop</Link></li>
               <li><Link to="/paseador" className="nav-btn"><i className="fas fa-walking"></i> Paseadores</Link></li>
               <li><Link to="/gps" className="nav-btn"><i className="fas fa-map-marker-alt"></i> GPS</Link></li>
@@ -46,8 +47,9 @@ export default function HomeHeader({ onLogout }: HomeHeaderProps) {
       <nav className={`lg:hidden bg-white shadow-md transition-all duration-300 ${isMobileMenuOpen ? 'block' : 'hidden'}`}>
         <ul className="p-5 space-y-4">
           <li><Link to="/home" className="flex items-center gap-2 text-green-500 font-medium"><i className="fas fa-home"></i> Inicio</Link></li>
-          <li><Link to="/consultacita" className="flex items-center gap-2 text-green-500 font-medium"><i className="fas fa-calendar-check"></i> Consulta Cita</Link></li>
+          <li><Link to="/consultar-cita" className="flex items-center gap-2 text-green-500 font-medium"><i className="fas fa-calendar-check"></i> Consulta Cita</Link></li>
           <li><Link to="/cita" className="flex items-center gap-2 text-green-500 font-medium"><i className="fas fa-calendar-alt"></i> Agendar Cita</Link></li>
+          <li><Link to="/equipo" className="flex items-center gap-2 text-green-500 font-medium"><i className="fas fa-users"></i> Nuestro Equipo</Link></li>
           <li><Link to="/petshop" className="flex items-center gap-2 text-green-500 font-medium"><i className="fas fa-shopping-cart"></i> PetShop</Link></li>
           <li><Link to="/paseador" className="flex items-center gap-2 text-green-500 font-medium"><i className="fas fa-walking"></i> Paseadores</Link></li>
           <li><Link to="/gps" className="flex items-center gap-2 text-green-500 font-medium"><i className="fas fa-map-marker-alt"></i> GPS</Link></li>

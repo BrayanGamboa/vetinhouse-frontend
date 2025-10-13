@@ -110,7 +110,7 @@ export const useEmergencia = () => {
 
     return () => {
       if (walkIntervalRef.current) {
-        clearInterval(walkIntervalRef.current);
+        clearInterval(walkIntervalRef.current as any);
       }
     };
   }, []);
@@ -139,14 +139,14 @@ export const useEmergencia = () => {
       }, 1000);
     } else {
       if (emergencyIntervalRef.current) {
-        clearInterval(emergencyIntervalRef.current);
+        clearInterval(emergencyIntervalRef.current as any);
         emergencyIntervalRef.current = null;
       }
     }
 
     return () => {
       if (emergencyIntervalRef.current) {
-        clearInterval(emergencyIntervalRef.current);
+        clearInterval(emergencyIntervalRef.current as any);
       }
     };
   }, [isEmergencyActive]);
@@ -158,7 +158,7 @@ export const useEmergencia = () => {
     
     // Limpiar timer de emergencia
     if (emergencyIntervalRef.current) {
-      clearInterval(emergencyIntervalRef.current);
+      clearInterval(emergencyIntervalRef.current as any);
       emergencyIntervalRef.current = null;
     }
     

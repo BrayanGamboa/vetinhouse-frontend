@@ -4,6 +4,7 @@ import type { CartItem, PaymentMethod, ShippingInfo } from '../types/petshop.typ
 interface ShoppingCartProps {
   cart: CartItem[];
   totalPrice: number;
+  shippingCost: number;
   totalItems: number;
   paymentMethods: PaymentMethod[];
   onUpdateQuantity: (productId: string, quantity: number) => void;
@@ -14,6 +15,7 @@ interface ShoppingCartProps {
 export default function ShoppingCart({
   cart,
   totalPrice,
+  shippingCost,
   totalItems,
   paymentMethods,
   onUpdateQuantity,
@@ -30,6 +32,8 @@ export default function ShoppingCart({
     notes: ''
   });
   const [orderComplete, setOrderComplete] = useState(false);
+  const [processingPayment, setProcessingPayment] = useState(false);
+  const [orderNumber, setOrderNumber] = useState<string>('');
 
   const handleCheckout = () => {
     if (!selectedPayment || !shippingInfo.address || !shippingInfo.city || !shippingInfo.phone) {
@@ -37,26 +41,99 @@ export default function ShoppingCart({
       return;
     }
     
-    // Simular procesamiento de pago
-    setOrderComplete(true);
+    // Iniciar procesamiento de pago
+    setProcessingPayment(true);
+    
+    // Simular procesamiento de pago (2-3 segundos)
     setTimeout(() => {
-      onClearCart();
-      setOrderComplete(false);
-      setShowCheckout(false);
-      setIsOpen(false);
-      alert('¡Pedido realizado con éxito! Recibirás una confirmación por email.');
-    }, 2000);
+      // Generar número de orden
+      const orderNum = `VH-${Date.now().toString().slice(-8)}`;
+      setOrderNumber(orderNum);
+      setProcessingPayment(false);
+      setOrderComplete(true);
+      
+      // Limpiar carrito después de 5 segundos
+      setTimeout(() => {
+        onClearCart();
+        setOrderComplete(false);
+        setShowCheckout(false);
+        setIsOpen(false);
+        setSelectedPayment('');
+        setShippingInfo({
+          address: '',
+          city: '',
+          phone: '',
+          notes: ''
+        });
+      }, 5000);
+    }, 2500);
   };
 
+  // Modal de procesamiento de pago
+  if (processingPayment) {
+    return (
+      <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
+        <div className="bg-white rounded-2xl p-8 text-center max-w-md mx-4 shadow-2xl">
+          <div className="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse">
+            <i className="fas fa-credit-card text-3xl text-blue-600"></i>
+          </div>
+          <h3 className="text-2xl font-bold text-gray-900 mb-2">Procesando pago...</h3>
+          <p className="text-gray-600 mb-4">Por favor espera mientras verificamos tu pago</p>
+          <div className="animate-spin w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full mx-auto"></div>
+          <div className="mt-4 flex items-center justify-center gap-2 text-sm text-gray-500">
+            <i className="fas fa-lock"></i>
+            <span>Conexión segura SSL</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Modal de confirmación de pedido
   if (orderComplete) {
     return (
-      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-        <div className="bg-white rounded-xl p-8 text-center max-w-md mx-4">
-          <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <i className="fas fa-check text-2xl text-green-600"></i>
+      <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
+        <div className="bg-white rounded-2xl p-8 text-center max-w-lg mx-4 shadow-2xl">
+          <div className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4 animate-bounce">
+            <i className="fas fa-check-circle text-5xl text-green-600"></i>
           </div>
-          <h3 className="text-xl font-bold text-gray-900 mb-2">Procesando pedido...</h3>
-          <div className="animate-spin w-8 h-8 border-4 border-green-600 border-t-transparent rounded-full mx-auto"></div>
+          <h3 className="text-3xl font-bold text-gray-900 mb-2">¡Pedido Confirmado!</h3>
+          <div className="bg-green-50 border-2 border-green-200 rounded-lg p-4 mb-4">
+            <p className="text-sm text-gray-600 mb-1">Número de orden:</p>
+            <p className="text-2xl font-bold text-green-600">{orderNumber}</p>
+          </div>
+          <p className="text-gray-700 mb-2">Tu pedido ha sido procesado exitosamente</p>
+          <p className="text-gray-600 text-sm mb-6">Recibirás un email con los detalles de seguimiento</p>
+          
+          <div className="bg-blue-50 rounded-lg p-4 mb-4">
+            <div className="flex items-start gap-3 text-left">
+              <i className="fas fa-shipping-fast text-2xl text-blue-600 mt-1"></i>
+              <div>
+                <p className="font-semibold text-gray-900">Entrega estimada</p>
+                <p className="text-sm text-gray-600">24-48 horas hábiles</p>
+                <p className="text-xs text-gray-500 mt-1">Te notificaremos cuando tu pedido esté en camino</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex gap-3">
+            <div className="flex-1 bg-gray-50 rounded-lg p-3">
+              <p className="text-xs text-gray-600">Subtotal</p>
+              <p className="font-bold text-gray-900">${totalPrice.toFixed(2)}</p>
+            </div>
+            <div className="flex-1 bg-gray-50 rounded-lg p-3">
+              <p className="text-xs text-gray-600">Envío</p>
+              <p className={`font-bold ${shippingCost === 0 ? 'text-green-600' : 'text-gray-900'}`}>
+                {shippingCost === 0 ? 'GRATIS' : `$${shippingCost.toFixed(2)}`}
+              </p>
+            </div>
+            <div className="flex-1 bg-green-50 rounded-lg p-3 border-2 border-green-200">
+              <p className="text-xs text-green-700">Total</p>
+              <p className="font-bold text-green-600">${(totalPrice + shippingCost).toFixed(2)}</p>
+            </div>
+          </div>
+
+          <p className="text-xs text-gray-500 mt-6">Esta ventana se cerrará automáticamente...</p>
         </div>
       </div>
     );
@@ -165,17 +242,17 @@ export default function ShoppingCart({
                   </div>
                   <div className="flex justify-between items-center mb-2">
                     <span className="text-gray-600">Envío:</span>
-                    <span className="font-semibold text-green-600">
-                      {totalPrice >= 50 ? 'GRATIS' : '$5.00'}
+                    <span className={`font-semibold ${shippingCost === 0 ? 'text-green-600' : 'text-gray-900'}`}>
+                      {shippingCost === 0 ? 'GRATIS' : `$${shippingCost.toFixed(2)}`}
                     </span>
                   </div>
                   <div className="border-t pt-2 flex justify-between items-center">
                     <span className="text-lg font-bold text-gray-900">Total:</span>
                     <span className="text-2xl font-bold text-green-600">
-                      ${(totalPrice + (totalPrice >= 50 ? 0 : 5)).toFixed(2)}
+                      ${(totalPrice + shippingCost).toFixed(2)}
                     </span>
                   </div>
-                  {totalPrice < 50 && (
+                  {shippingCost > 0 && totalPrice < 50 && (
                     <p className="text-xs text-gray-500 mt-2 text-center">
                       Agrega ${(50 - totalPrice).toFixed(2)} más para envío gratis
                     </p>
@@ -277,7 +354,10 @@ export default function ShoppingCart({
                           className="h-8 w-auto object-contain"
                           onError={(e) => {
                             e.currentTarget.style.display = 'none';
-                            e.currentTarget.nextElementSibling!.style.display = 'block';
+                            const nextSibling = e.currentTarget.nextElementSibling as HTMLElement;
+                            if (nextSibling) {
+                              nextSibling.style.display = 'block';
+                            }
                           }}
                         />
                       ) : (
@@ -315,12 +395,12 @@ export default function ShoppingCart({
                   <div className="flex justify-between items-center">
                     <span className="text-gray-600">Envío:</span>
                     <span className={`font-medium ${
-                      totalPrice >= 50 ? 'text-green-600' : 'text-gray-900'
+                      shippingCost === 0 ? 'text-green-600' : 'text-gray-900'
                     }`}>
-                      {totalPrice >= 50 ? 'GRATIS' : '$5.00'}
+                      {shippingCost === 0 ? 'GRATIS' : `$${shippingCost.toFixed(2)}`}
                     </span>
                   </div>
-                  {totalPrice >= 50 && (
+                  {shippingCost === 0 && (
                     <div className="text-xs text-green-600 flex items-center gap-1">
                       <i className="fas fa-gift"></i>
                       ¡Felicidades! Tienes envío gratis
@@ -329,7 +409,7 @@ export default function ShoppingCart({
                   <div className="border-t border-green-200 pt-2 flex justify-between items-center">
                     <span className="text-lg font-bold text-gray-900">Total a pagar:</span>
                     <span className="text-2xl font-bold text-green-600">
-                      ${(totalPrice + (totalPrice >= 50 ? 0 : 5)).toFixed(2)}
+                      ${(totalPrice + shippingCost).toFixed(2)}
                     </span>
                   </div>
                 </div>
@@ -343,7 +423,7 @@ export default function ShoppingCart({
                 <i className="fas fa-lock"></i>
                 Confirmar Pedido Seguro
                 <span className="text-sm font-normal">
-                  ${(totalPrice + (totalPrice >= 50 ? 0 : 5)).toFixed(2)}
+                  ${(totalPrice + shippingCost).toFixed(2)}
                 </span>
               </button>
             </div>
