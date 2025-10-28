@@ -18,10 +18,11 @@ export default function QuickAccess({ items }: QuickAccessProps) {
 
   const getRandomTip = (title: string) => {
     const tips = {
-      'Consulta Veterinaria': ['💡 Tip: Prepara las preguntas antes de la consulta', '🩺 Recuerda tener la cartilla de vacunas lista', '📋 Anota los síntomas que has observado'],
-      'Paseador de Perros': ['🚶 Tip: Los paseos regulares mejoran la salud mental', '⏰ 30 minutos diarios es lo recomendado', '🎾 El ejercicio fortalece el vínculo con tu mascota'],
-      'Tienda de Mascotas': ['🛒 Tip: Compra alimento premium para mejor nutrición', '🧸 Los juguetes estimulan la mente de tu mascota', '🦴 Los premios ayudan en el entrenamiento'],
-      'Emergencias 24/7': ['🚨 Tip: Mantén siempre el número de emergencia a mano', '⚡ Actúa rápido en caso de intoxicación', '🏥 Conoce la ubicación del hospital más cercano']
+      'Agendar Cita': ['💡 Tip: Prepara las preguntas antes de la consulta', '🩺 Recuerda tener la cartilla de vacunas lista', '📋 Anota los síntomas que has observado'],
+      'Historial Clínico': ['� Tip: Revisa el historial antes de cada consulta', '💉 Mantén las vacunas al día', '� Descarga certificados cuando los necesites'],
+      'PetShop': ['🛒 Tip: Compra alimento premium para mejor nutrición', '🧸 Los juguetes estimulan la mente de tu mascota', '🦴 Los premios ayudan en el entrenamiento'],
+      'Paseadores': ['� Tip: Los paseos regulares mejoran la salud mental', '⏰ 30 minutos diarios es lo recomendado', '🎾 El ejercicio fortalece el vínculo con tu mascota'],
+      'GPS': ['🚨 Tip: Mantén siempre el GPS actualizado', '📍 Configura zonas seguras para alertas', '🔋 Verifica la batería del dispositivo']
     };
     const itemTips = tips[title as keyof typeof tips] || ['💡 Tip: Cuida siempre a tu mascota'];
     return itemTips[Math.floor(Math.random() * itemTips.length)];

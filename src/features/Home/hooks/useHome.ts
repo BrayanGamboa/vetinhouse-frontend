@@ -14,20 +14,27 @@ export const useHome = () => {
     },
     {
       id: '2',
+      title: 'Historial Clínico',
+      description: 'Consulta el historial médico completo de tu mascota',
+      icon: 'fas fa-file-medical-alt',
+      href: '/historial-clinico'
+    },
+    {
+      id: '3',
       title: 'PetShop',
       description: 'Productos de calidad para tu mascota',
       icon: 'fas fa-shopping-cart',
       href: '/petshop'
     },
     {
-      id: '3',
+      id: '4',
       title: 'Paseadores',
       description: 'Encuentra paseadores confiables para tu mascota',
       icon: 'fas fa-walking',
       href: '/paseador'
     },
     {
-      id: '4',
+      id: '5',
       title: 'GPS',
       description: 'Localiza a tu mascota en tiempo real',
       icon: 'fas fa-map-marker-alt',
