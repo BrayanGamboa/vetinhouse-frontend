@@ -150,6 +150,14 @@ export default function MainLayout({ children, title, showBackgroundEffects = tr
               </li>
               <li>
                 <Link 
+                  to="/historial-clinico" 
+                  className={`nav-btn ${isActiveLink('/historial-clinico') ? 'active' : ''}`}
+                >
+                  <i className="fas fa-file-medical-alt"></i> Historial Clínico
+                </Link>
+              </li>
+              <li>
+                <Link 
                   to="/paseador" 
                   className={`nav-btn ${isActiveLink('/paseador') ? 'active' : ''}`}
                 >
@@ -239,6 +247,16 @@ export default function MainLayout({ children, title, showBackgroundEffects = tr
               }`}
             >
               <i className="fas fa-shopping-cart"></i> PetShop
+            </Link>
+          </li>
+          <li>
+            <Link 
+              to="/historial-clinico" 
+              className={`flex items-center gap-2 font-medium transition-colors duration-200 ${
+                isActiveLink('/historial-clinico') ? 'text-green-600' : 'text-green-500 hover:text-green-600'
+              }`}
+            >
+              <i className="fas fa-file-medical-alt"></i> Historial Clínico
             </Link>
           </li>
           <li>

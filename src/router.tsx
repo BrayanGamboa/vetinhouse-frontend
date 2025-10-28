@@ -8,8 +8,9 @@ import PetShopRoutes from "@features/PetShop/routes";
 import CitaRoutes from "@features/Cita/routes";
 import { equipoRoutes } from "@features/Equipo/routes";
 import { gpsRoutes } from "@features/GPS/routes";
+import { HistorialClinicoRoutes } from "@features/HistorialClinico/routes";
 
-export const appRoutes = [...WelcomeRoutes, ...LoginRoutes, ...registerRoutes, ...HomeRoutes, ...EmergenciaRoutes, ...PetShopRoutes, ...CitaRoutes, ...equipoRoutes, ...gpsRoutes];
+export const appRoutes = [...WelcomeRoutes, ...LoginRoutes, ...registerRoutes, ...HomeRoutes, ...EmergenciaRoutes, ...PetShopRoutes, ...CitaRoutes, ...equipoRoutes, ...gpsRoutes, HistorialClinicoRoutes];
 
 export const AppRouter = () => {
   const element = useRoutes(appRoutes);
