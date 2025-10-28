@@ -4,6 +4,11 @@ import { PatientCard } from '../components/PatientCard';
 import { TimelineItem } from '../components/TimelineItem';
 import { VaccineCard } from '../components/VaccineCard';
 import { ConsultationCard } from '../components/ConsultationCard';
+import { 
+  generateHealthCertificate, 
+  generatePrescription, 
+  generateFullMedicalReport 
+} from '../utils/pdfGenerator';
 
 type TabType = 'resumen' | 'consultas' | 'vacunas' | 'examenes' | 'cirugias' | 'documentos';
 
@@ -195,6 +200,34 @@ export function HistorialClinicoView() {
                 </div>
               </div>
 
+              {/* Exportar Historial Completo */}
+              <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl shadow-md p-6 mb-6 border border-green-200">
+                <div className="flex items-center justify-between">
+                  <div className="flex-1">
+                    <h3 className="font-bold text-lg text-gray-900 mb-2 flex items-center gap-2">
+                      <i className="fas fa-file-pdf text-red-600 text-xl"></i>
+                      Historial Médico Completo
+                    </h3>
+                    <p className="text-gray-600 text-sm">
+                      Descarga un informe completo en PDF con todas las consultas, vacunas, exámenes de laboratorio y cirugías.
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => generateFullMedicalReport(
+                      currentPatient,
+                      consultations,
+                      vaccines,
+                      labTests,
+                      surgeries
+                    )}
+                    className="ml-6 px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white font-semibold rounded-lg shadow-lg hover:from-green-700 hover:to-emerald-700 transition-all duration-200 transform hover:scale-105 flex items-center gap-2"
+                  >
+                    <i className="fas fa-download"></i>
+                    Exportar Historial
+                  </button>
+                </div>
+              </div>
+
               {/* Alertas y Notas importantes */}
               {medicalNotes.filter(n => n.priority === 'Alta' || n.priority === 'Urgente').length > 0 && (
                 <div className="bg-white rounded-xl shadow-md p-6 mb-6">
@@ -281,7 +314,7 @@ export function HistorialClinicoView() {
                   <VaccineCard 
                     key={vaccine.id} 
                     vaccine={vaccine}
-                    onDownloadCertificate={() => alert('Generando certificado PDF...')}
+                    patient={currentPatient}
                   />
                 ))}
               {vaccines.length === 0 && (
@@ -528,7 +561,7 @@ export function HistorialClinicoView() {
                   </div>
 
                   <button
-                    onClick={() => alert('Generando certificado PDF...')}
+                    onClick={() => generateHealthCertificate(currentPatient, cert)}
                     className="w-full bg-gradient-to-r from-green-600 to-green-700 text-white py-2 rounded-lg font-medium hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2"
                   >
                     <i className="fas fa-file-pdf"></i>
@@ -566,7 +599,10 @@ export function HistorialClinicoView() {
                   </div>
 
                   <button
-                    onClick={() => alert('Generando receta PDF...')}
+                    onClick={() => {
+                      const consultation = consultations.find(c => c.id === rx.consultationId);
+                      generatePrescription(currentPatient, rx, consultation);
+                    }}
                     className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white py-2 rounded-lg font-medium hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2"
                   >
                     <i className="fas fa-file-pdf"></i>

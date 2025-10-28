@@ -1,11 +1,12 @@
-import type { Vaccine } from '../types/historial.types';
+import type { Vaccine, Patient } from '../types/historial.types';
+import { generateVaccinationCertificate } from '../utils/pdfGenerator';
 
 interface VaccineCardProps {
   vaccine: Vaccine;
-  onDownloadCertificate?: () => void;
+  patient: Patient;
 }
 
-export function VaccineCard({ vaccine, onDownloadCertificate }: VaccineCardProps) {
+export function VaccineCard({ vaccine, patient }: VaccineCardProps) {
   const isExpiringSoon = vaccine.nextDose && 
     (vaccine.nextDose.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24) < 30;
   const isExpired = vaccine.nextDose && vaccine.nextDose < new Date();
@@ -110,9 +111,9 @@ export function VaccineCard({ vaccine, onDownloadCertificate }: VaccineCardProps
         </div>
       )}
 
-      {onDownloadCertificate && vaccine.certified && (
+      {vaccine.certified && (
         <button
-          onClick={onDownloadCertificate}
+          onClick={() => generateVaccinationCertificate(patient, vaccine)}
           className="w-full bg-gradient-to-r from-green-600 to-green-700 text-white py-2 rounded-lg font-medium hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2"
         >
           <i className="fas fa-file-pdf"></i>
